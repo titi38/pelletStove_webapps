@@ -1,0 +1,12 @@
+dl { float:left; width:100%; }
+dt,
+dd { float:left; width: 100px; margin: 0; padding:0; }
+dt { padding-right:0.5em; }
+.dl-horizontal dt { text-align: left; }
+
+.autoPanel {
+  background-color: #f1f1f1;
+  padding: 1em 16px;
+  margin: 20px 0;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12)!important;
+}

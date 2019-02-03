@@ -1,0 +1,84 @@
+<div class="container">
+
+  <div class="raw ">
+    <div class="col-xs-4">
+      Etat fonctionnement
+    </div>
+    <div class="col-xs-4">
+      Temp intérieur
+    </div>
+    <div class="col-xs-4">
+        Temp extérieur
+    </div>
+  </div>
+  <div class="raw">
+    <div class="col-xs-12">
+  <hr/>
+    </div>
+    </div>
+  <div class="raw">
+    <div class="col-xs-4 center-block">
+      <dl class="dl-horizontal">
+        <dt>Etat</dt>
+        <dd>{{info.pelletMonitor.operatingMode | uppercase }}</dd>
+        <dt>Puissance</dt>
+        <dd>{{info.pelletMonitor.power}}/6</dd>
+        <dt>Eau</dt>
+        <dd>{{info.pelletMonitor.tempWater}}&deg;C/{{info.pelletMonitor.tempWaterConsigne}}</dd>
+        <dt>Conso</dt>
+        <dd *ngIf="info.pelletMonitor.hasOwnProperty('conso')">{{info.pelletMonitor.conso | number: '1.0-1'}}Kg/h</dd>
+      </dl>
+    </div>
+    <div class="col-xs-4">
+      <dl class="dl-horizontal">
+        <dt>Temp</dt>
+        <dd>{{info.indoorData.temp}}&deg;C</dd>
+        <dt>Humidité</dt>
+        <dd>{{info.indoorData.humi}}%</dd>
+      </dl>
+    </div>
+
+    <div class="col-xs-4">
+      <dl class="dl-horizontal">
+        <dt>Temp</dt>
+        <dd>{{info.outdoorData.temp}}&deg;C</dd>
+        <dt>Humidité</dt>
+        <dd>{{info.outdoorData.humi}}%</dd>
+      </dl>
+      <img src="{{info.outdoorData.icon}}" style="margin-top: -25px;"/>
+    </div>
+  </div>
+
+  <div class="raw">
+    <div class="col-xs-12 autoPanel">
+
+      <strong>Mode automatique: </strong> <!--      Mode auto: {{info.autoMode.mode}}-->
+      <button class="btn btn-primary" (click)="onModeOff()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'off' }" [disabled]="info.autoMode.mode === 'off'">Arrêté</button>
+      <button class="btn btn-primary" (click)="onModeNormal()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'basic' }" [disabled]="info.autoMode.mode === 'basic'">Normal</button>
+      <button class="btn btn-primary" (click)="onModeVacation()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'vacation' }" [disabled]="info.autoMode.mode === 'vacation'">Vacation</button>
+      <button class="btn btn-primary" (click)="onModeAbsent()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'absent' }" [disabled]="info.autoMode.mode === 'absent'">Absent</button>
+      <button class="btn btn-primary" (click)="onModeCustom()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'custom' }" [disabled]="info.autoMode.mode === 'custom'">Custom</button>
+
+   <!--   onResetAlert()  -->
+    </div>
+  </div>
+  <div class="raw" *ngIf="info.autoMode.mode === 'off' && !info.pelletMonitor.operatingMode.includes('alert')">
+    <BR>
+    <div class="col-xs-12 autoPanel">
+      <strong>Commandes: </strong><!--      {{info.pelletMonitor.operatingMode}}<br/> -->
+      <button class="btn btn-primary active" (click)="onStart()" [ngClass]="{'btn-lg active' : info.pelletMonitor.operatingMode === 'starting' }" [disabled]="info.pelletMonitor.operatingMode !== 'off' || info.autoMode.mode !== 'off'">Allumer</button>
+      <button class="btn btn-primary" (click)="onStop()" [ngClass]="{'btn-lg active' : info.pelletMonitor.operatingMode === 'stopping' }" [disabled]="info.pelletMonitor.operatingMode !== 'on' || info.autoMode.mode !== 'off'">Eteindre</button>
+      <button class="btn btn-primary" (click)="onClean()" [ngClass]="{'btn-lg active' : info.pelletMonitor.operatingMode === 'cleaning' }" [disabled]="info.pelletMonitor.operatingMode !== 'off' || info.autoMode.mode !== 'off'">Nettoyer</button>&nbsp;
+      <button class="btn btn-success" (click)="onIncPower()" [disabled]="info.pelletMonitor.power==6 || info.autoMode.mode !== 'off'">Puissance +</button>
+      <button class="btn btn-success" (click)="onDecPower()" [disabled]="info.pelletMonitor.power==1 || info.autoMode.mode !== 'off'">Puissance -</button>
+    </div>
+  </div>
+  <BR>
+  <div class="raw" *ngIf="info.pelletMonitor.operatingMode.includes('alert')">
+    <BR>
+    <div class="col-xs-12 autoPanel" style="background-color: #f10000;">
+      <button class="btn btn-primary" (click)="onResetAlert()">Reset Alert</button>
+    </div>
+  </div>
+
+</div>
