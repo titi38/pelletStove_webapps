@@ -13,6 +13,10 @@ export class OldstyleComponent implements OnInit, OnDestroy {
   lcdMessage: string;
   refreshLcdMsgSubscription: any;
 
+  durationOptions = [ 'short', 'normal', 'long' ];
+  selectedDurationOption = 'normal';
+
+
   ngOnInit() {
     const counter = interval( 2000 );
     this.refreshLcdMsgSubscription = counter.subscribe(
@@ -31,7 +35,7 @@ export class OldstyleComponent implements OnInit, OnDestroy {
   }
 
   onRefreshLcdMsg() {
-    this.pelletService.getLcdMsg().subscribe(
+    this.pelletService.sendCommand("getLcdMsg").subscribe(
       (response) =>{
         let aa: any ;
         aa = response;
@@ -44,16 +48,10 @@ export class OldstyleComponent implements OnInit, OnDestroy {
     );
   }
 
-  chooseDur(val) {
-    console.log(val);
-  }
 
-  durStrParam(){
-
-  }
-
-  onUp() {
-    this.pelletService.sendCommand("pressButton&up"+this.durStrParam()).subscribe(
+  pressButton(button: string){
+    console.log("pressButton&"+button+"&dur="+this.selectedDurationOption);
+    this.pelletService.sendCommand("pressButton&"+button+"&dur="+this.selectedDurationOption).subscribe(
       (response) =>{
         //this.info = response;
         console.log(response);
@@ -64,20 +62,27 @@ export class OldstyleComponent implements OnInit, OnDestroy {
     );
   }
 
+  onUp() {
+    this.pressButton("up");
+  }
+
   onDown() {
+    this.pressButton("down");
   }
 
   onOn() {
+    this.pressButton("on");
   }
 
   onOff() {
-
+    this.pressButton("off");
   }
 
   onUpDown() {
+    this.pressButton("up&down");
   }
 
   onOnUp() {
-
+    this.pressButton("up&on");
   }
 }

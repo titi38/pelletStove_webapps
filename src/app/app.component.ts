@@ -1,4 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import { PelletService } from './services/pellets.service';
 import { interval } from 'rxjs';
 
 @Component({
@@ -10,6 +11,8 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'pellet';
   today: number = Date.now();
   dateSubscription: any;
+
+  constructor(private pelletService: PelletService) { }
 
   ngOnInit() {
     const timerEvent = interval( 30000 );
@@ -28,4 +31,18 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.dateSubscription.unsubscribe();
   }
+
+  onShutdown() {
+    this.pelletService.sendCommand('shutdown').subscribe(
+      (response) => {
+        // this.info = response;
+        console.log(response);
+      },
+      (error) => {
+        console.log('Erreur !: ' + error);
+      }
+    );
+  }
+
 }
+

@@ -1,0 +1,17 @@
+<div *ngFor="let chart of charts">
+  <google-chart
+                [title]="chart.title"
+                [type]="chart.type"
+                [data]="chart.data"
+                [columnNames]="chart.columnNames"
+                [roles]="chart.roles"
+                [options]="chart.options">
+
+<!--                (ready)="onReady()"
+                (select)="onSelect($event)"
+                (error)="onError($event)"
+                (mouseenter)="onMouseEnter($event)"
+                (mouseleave)="onMouseLeave($event)">
+                -->
+  </google-chart>
+</div>

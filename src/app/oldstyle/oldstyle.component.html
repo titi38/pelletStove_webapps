@@ -1,7 +1,6 @@
 <div class="container">
-  <div class="form-group row">
-    <label for="LcdMessage" class="col-xs-2 col-form-label">LCD message</label>
-    <div class="col-xs-10" id="LcdMessage">
+  <div class="form-group row center-block" style="padding-top:24px; padding-bottom:24px;">
+    <div class="col-xs-10 col-xs-offset-1" id="LcdMessage">
       {{lcdMessage}}
     </div>
   </div>
@@ -16,15 +15,19 @@
       <button class="btn btn-primary" (click)="onOnUp()">On+Up</button>
     </div>
   </div>
-  <div class="form-group row">
+  <div class="form-group row" style="padding-top:16px;">
     <label for="Duration" class="col-xs-2 col-form-label">Duration</label>
     <div class="col-xs-10 form-check" id="Duration">
-       <input class="form-check-input" type="radio" name="durationOptions" id="inlineRadio1" [value]="short" (click)="console.log($event);" />
-        <label class="form-check-label" for="inlineRadio1">Quick</label>&nbsp;
-        <input class="form-check-input" type="radio" name="durationOptions" id="inlineRadio2" value="normal" checked>
-        <label class="form-check-label" for="inlineRadio2">Normal</label>&nbsp;
-        <input class="form-check-input" type="radio" name="durationOptions" id="inlineRadio3" value="long">
-        <label class="form-check-label" for="inlineRadio3">Long</label>
+      <div *ngFor="let durationOption of durationOptions; let idx = index">
+
+        <input class="form-check-input" type="radio"
+               name="duration" id="duration{{idx}}"
+               [checked]="durationOption == selectedDurationOption"
+               [value]="durationOption"
+               [(ngModel)]="selectedDurationOption" >
+        <label for="duration{{idx}}" class="col-form-label"> {{ durationOption }} </label>
+
       </div>
+    </div>
   </div>
 </div>

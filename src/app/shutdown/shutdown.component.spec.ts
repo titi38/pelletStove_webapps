@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import { ErrorNavComponent } from './error-nav.component';
+import { ShutdownComponent } from './shutdown.component';
 
-describe('ErrorNavComponent', () => {
-  let component: ErrorNavComponent;
-  let fixture: ComponentFixture<ErrorNavComponent>;
+describe('ShutdownComponent', () => {
+  let component: ShutdownComponent;
+  let fixture: ComponentFixture<ShutdownComponent>;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ ErrorNavComponent ]
+      declarations: [ ShutdownComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ErrorNavComponent);
+    fixture = TestBed.createComponent(ShutdownComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
