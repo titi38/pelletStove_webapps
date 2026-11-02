@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { GoogleChartsModule } from 'angular-google-charts';
+import { LegacyGoogleChartComponent } from './statistics/legacy-google-chart.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MonitorComponent } from './monitor/monitor.component';
@@ -14,7 +14,7 @@ import { OldstyleComponent } from './oldstyle/oldstyle.component';
 import { ErrorNavComponent } from './error-nav/error-nav.component';
 import { StatisticsComponent } from './statistics/statistics.component';
 import { ShutdownComponent } from './shutdown/shutdown.component';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 
 
 @NgModule({
@@ -25,17 +25,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     OldstyleComponent,
     ErrorNavComponent,
     StatisticsComponent,
-    ShutdownComponent
+    ShutdownComponent,
+    LegacyGoogleChartComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    GoogleChartsModule,
-    FormsModule,
-    ReactiveFormsModule,
-    HttpClientModule,
-    NgbModule
-  ],
+  imports: [BrowserModule, AppRoutingModule, FormsModule, ReactiveFormsModule, HttpClientModule],
   providers: [ PelletService ],
   bootstrap: [AppComponent]
 })

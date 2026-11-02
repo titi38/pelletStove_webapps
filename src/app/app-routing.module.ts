@@ -12,14 +12,14 @@ const routes: Routes = [
   {path : 'monitor', component: MonitorComponent},
   {path : 'oldstyle', component: OldstyleComponent},
   {path : 'stats', component: StatisticsComponent},
-  {path : 'config', component: ConfigComponent},
+  {path : 'config', redirectTo: 'monitor'},
   {path : 'shutdown', component: ShutdownComponent},
   {path : '', redirectTo: 'monitor', pathMatch: 'full'},
   {path : '**', component: ErrorNavComponent}
 ]
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

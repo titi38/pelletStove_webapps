@@ -1,0 +1,24 @@
+.app-shell{min-height:100vh}.topbar{display:flex;align-items:center;gap:18px;padding:12px clamp(14px,3vw,36px);background:#162334;color:#edf6f3;min-height:68px}.brand{display:flex;align-items:center;gap:8px;color:#fff!important;font-weight:800;font-size:20px;text-decoration:none!important;white-space:nowrap}.brand-mark{background:#314c4a;color:#f7a665;border-radius:10px;width:37px;height:37px;display:grid;place-items:center;font-size:25px}.brand-muted{font-weight:400;color:#a8c3bf}.main-nav{display:flex;gap:6px;margin-left:auto}.main-nav a{color:#bdd0ce;text-decoration:none;padding:12px 14px;border-radius:10px;font-size:14px;font-weight:650;white-space:nowrap}.main-nav a:hover,.main-nav a.selected{color:#fff;background:#315a57}.header-date{color:#a6b8b7;font-size:14px;white-space:nowrap}.app-content{max-width:1440px;margin:auto;padding:20px clamp(12px,2vw,28px) 35px}@media(max-width:700px){.topbar{flex-wrap:wrap;gap:5px;padding:10px 12px}.brand{font-size:17px}.brand-mark{width:32px;height:32px}.header-date{margin-left:auto}.main-nav{order:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;margin:6px 0 0;gap:4px}.main-nav a{text-align:center;padding:10px 3px;font-size:12px}.app-content{padding:12px 10px 25px}}@media(min-width:701px) and (max-height:650px){.topbar{height:56px;min-height:56px;padding-top:5px;padding-bottom:5px}.brand{font-size:18px}.brand-mark{height:34px;width:34px}.main-nav a{padding:9px 13px}.app-content{padding-top:10px;padding-bottom:12px}}
+
+/* Panneau tactile 1024x600 : densité adaptée à la hauteur disponible. */
+@media (min-width: 850px) and (max-height: 700px) {
+  .topbar {height:46px;min-height:46px;padding:3px 14px;gap:10px}
+  .brand {font-size:16px}.brand-mark {height:30px;width:30px;font-size:19px}
+  .main-nav a {padding:7px 11px;font-size:13px}
+  .app-content {padding:5px 12px 7px}
+}
+
+/* V4.2 : navigation rapprochée du logo, horloge à droite. */
+@media (min-width:701px) {
+  .main-nav { margin-left: 18px; }
+  .header-date { margin-left: auto; }
+}
+
+/* V4.3 : alignement vertical du logo, du titre et des onglets. */
+.topbar > .brand,
+.topbar > .main-nav,
+.topbar > .header-date { align-self: center; }
+.brand { line-height: 1; }
+.brand > span:last-child { display: inline-flex; align-items: center; height: 30px; line-height: 1; }
+.main-nav { align-items: center; }
+.main-nav a { display: inline-flex; align-items: center; justify-content: center; gap: 4px; line-height: 1.2; }

@@ -1,0 +1,1 @@
+V3.4 : légende du panneau manuel dans le sous-titre (plus de texte tronqué en bas à 1024x600) ; axe droit des statistiques affichant les équivalences humidité (%) / puissance (0-6). Les deux séries continuent de partager la même échelle 0-100 normalisée. Aucun changement backend ni commandes.

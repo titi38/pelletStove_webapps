@@ -1,33 +1,15 @@
-<div class="container">
-  <div class="form-group row center-block" style="padding-top:24px; padding-bottom:24px;">
-    <div class="col-xs-10 col-xs-offset-1" id="LcdMessage">
-      {{lcdMessage}}
-    </div>
-  </div>
-  <div class="form-group row">
-    <label for="CtrlButtons" class="col-xs-2 col-form-label">Boutons</label>
-    <div class="col-xs-10" id="CtrlButtons">
-      <button class="btn btn-primary" (click)="onUp()">Up</button>&nbsp;
-      <button class="btn btn-primary" (click)="onDown()">Down</button>&nbsp;
-      <button class="btn btn-primary" (click)="onOn()">On</button>&nbsp;
-      <button class="btn btn-primary" (click)="onOff()">Off</button>&nbsp;
-      <button class="btn btn-primary" (click)="onUpDown()">Up+Down</button>&nbsp;
-      <button class="btn btn-primary" (click)="onOnUp()">On+Up</button>
-    </div>
-  </div>
-  <div class="form-group row" style="padding-top:16px;">
-    <label for="Duration" class="col-xs-2 col-form-label">Duration</label>
-    <div class="col-xs-10 form-check" id="Duration">
-      <div *ngFor="let durationOption of durationOptions; let idx = index">
-
-        <input class="form-check-input" type="radio"
-               name="duration" id="duration{{idx}}"
-               [checked]="durationOption == selectedDurationOption"
-               [value]="durationOption"
-               [(ngModel)]="selectedDurationOption" >
-        <label for="duration{{idx}}" class="col-form-label"> {{ durationOption }} </label>
-
-      </div>
-    </div>
-  </div>
-</div>
+<section class="remote-page">
+  <div class="remote-heading"><div><h1>Panneau de commande</h1><p>Contrôle direct · chaque touche est envoyée immédiatement avec la durée choisie</p></div><span class="remote-badge">Mode manuel</span></div>
+  <div class="lcd-box"><span class="lcd-label">AFFICHEUR DU POÊLE</span><div class="lcd-screen" aria-live="polite">{{lcdMessage || 'Connexion au poêle…'}}</div></div>
+  <section class="remote-panel"><h2>Boutons de la façade</h2><div class="remote-buttons">
+    <button type="button" (click)="onUp()">↑ <span>Up</span></button>
+    <button type="button" (click)="onDown()">↓ <span>Down</span></button>
+    <button type="button" (click)="onOn()">⏻ <span>On</span></button>
+    <button type="button" class="off" (click)="onOff()">⏻ <span>Off</span></button>
+    <button type="button" (click)="onUpDown()">↕ <span>Up+Down</span></button>
+    <button type="button" (click)="onOnUp()">⏻↑ <span>On+Up</span></button>
+  </div></section>
+  <section class="duration-panel"><h2>Durée de l'appui</h2><div class="duration-options" role="group" aria-label="Durée de l'appui">
+    <label *ngFor="let durationOption of durationOptions; let idx = index" [class.active]="durationOption === selectedDurationOption"><input type="radio" name="duration" [id]="'duration'+idx" [value]="durationOption" [(ngModel)]="selectedDurationOption"><span>{{durationOption}}</span></label>
+  </div></section>
+</section>

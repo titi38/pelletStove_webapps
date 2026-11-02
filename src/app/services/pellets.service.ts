@@ -1,23 +1,23 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpClientModule } from '@angular/common/http';
-
-
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class PelletService {
-  constructor (private httpClient: HttpClient) {
-
-  }
+  private readonly apiUrl = '/dynamic';
+  constructor(private httpClient: HttpClient) {}
 
   refreshInfo() {
-    return this.httpClient.get<any[]>( /*'http://192.168.8.10:8080/info.json' */ 'http://localhost/pellets/info.json');
+    return this.httpClient.get<any>(`${this.apiUrl}/info.json`);
+  }
+
+  refreshStats() {
+    return this.httpClient.get<{hour: number; quarter: number; stats: number[][]}>(
+      `${this.apiUrl}/stats.json`, {params: {_: Date.now().toString()}}
+    );
   }
 
   sendCommand(command: string) {
-  return this.httpClient.get<any[]>( /*'http://192.168.8.10:8080/command.json?'+command */ 'http://localhost/pellets/command.json');
+    // Keep the original raw query syntax expected by the Navajo backend.
+    return this.httpClient.get<any>(`${this.apiUrl}/command.json?${command}`);
   }
-
-  // getLcdMsg() {
-  //  return this.httpClient.get<any[]>( /*'http://192.168.8.10:8080/command.json?getLcdMsg' */ 'http://localhost/pellets/getLcdMsg');
-  // }
 }

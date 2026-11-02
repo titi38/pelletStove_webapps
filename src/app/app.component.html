@@ -1,21 +1,12 @@
-<!--The content below is only a placeholder and can be replaced.-->
-
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <div class="navbar-collapse">
-      <ul class="nav navbar-nav">
-        <li routerLinkActive="active"><a routerLink="monitor">Running</a></li>
-        <li routerLinkActive="active"><a routerLink="oldstyle">Old View</a></li>
-        <li routerLinkActive="active"><a routerLink="stats">Stats</a></li>
-        <li routerLinkActive="active"><a routerLink="config">Configuration</a></li>
-      </ul>
-      <div class="navbar-right"><p> {{today | date:'dd/MM/yyyy - HH:mm'}} &nbsp;&nbsp;<a class="navbar-item" >>
-        <img src="assets/img/shutdown.png">
-      </a>
-      </p></div>
-    </div>
-  </div>
-</nav>
-<!--app-monitor></app-monitor-->
-
-<router-outlet></router-outlet>
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/monitor"><span class="brand-mark">♨</span><span>Pellet<span class="brand-muted">Control</span></span></a>
+    <nav class="main-nav" aria-label="Navigation principale">
+      <a routerLink="/monitor" routerLinkActive="selected">⌂ <span>Accueil</span></a>
+      <a routerLink="/oldstyle" routerLinkActive="selected">▦ <span>Manuel</span></a>
+      <a routerLink="/stats" routerLinkActive="selected">▥ <span>Statistiques</span></a>
+    </nav>
+    <span class="header-date">{{today | date:'HH:mm'}}</span>
+  </header>
+  <main class="app-content"><router-outlet></router-outlet></main>
+</div>
