@@ -1,94 +1,19 @@
-<div class="container">
-
-  <div class="raw ">
-    <div class="col-xs-4">
-      Working conditions
-    </div>
-    <div class="col-xs-4">
-      Ambient conditions
-    </div>
-    <div class="col-xs-4">
-      Weather conditions
-    </div>
-  </div>
-  <div class="raw">
-    <div class="col-xs-12">
-  <hr/>
-    </div>
-    </div>
-  <div class="raw">
-    <div class="col-xs-4 center-block">
-      <dl class="dl-horizontal">
-        <dt>Status</dt>
-        <dd>{{info.pelletMonitor.operatingMode | uppercase }}</dd>
-        <dt>Power</dt>
-        <dd>{{info.pelletMonitor.power}}/6</dd>
-        <dt>Water Temp.</dt>
-        <dd>{{info.pelletMonitor.tempWater}}&deg;C/{{info.pelletMonitor.tempWaterConsigne}}</dd>
-        <dt>Conso</dt>
-        <dd *ngIf="info.pelletMonitor.conso !== undefined ">{{info.pelletMonitor.conso | number: '1.0-1'}}Kg/h</dd>
-        <dt>Remainings</dt>
-        <dd [ngClass]="{
-          'bg-danger text-danger' : info.pelletGauge.remaining <= 10,
-          'bg-warning text-warning': info.pelletGauge.remaining > 10 && info.pelletGauge.remaining <= 25 }">
-          <strong>
-            {{info.pelletGauge.remaining | number: '1.0-1'}}Kg</strong></dd>
-      </dl>
-    </div>
-    <div class="col-xs-4">
-      <dl class="dl-horizontal">
-        <dt>Temp</dt>
-        <dd>{{info.indoorData.temp}}&deg;C</dd>
-        <dt>Humidity</dt>
-        <dd>{{info.indoorData.humi}}%</dd>
-      </dl>
-    </div>
-
-    <div class="col-xs-4">
-      <dl class="dl-horizontal">
-        <dt>Temp</dt>
-        <dd>{{info.outdoorData.temp}}&deg;C</dd>
-        <dt>Humidity</dt>
-        <dd>{{info.outdoorData.humi}}%</dd>
-      </dl>
-      <img src="{{info.outdoorData.icon}}" style="margin-top: -25px;"/>
-    </div>
-  </div>
-
-  <div class="raw">
-    <div class="col-xs-12 autoPanel">
-
-      <strong>Automatic Mode</strong>&nbsp; <!--      Mode auto: {{info.autoMode.mode}}-->
-      <button class="btn btn-primary" (click)="onModeOff()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'off' }" [disabled]="info.autoMode.mode === 'off'">Manual</button>
-      <button class="btn btn-primary" (click)="onModeNormal()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'basic' }" [disabled]="info.autoMode.mode === 'basic'">Automatic</button>
-      <button class="btn btn-primary" (click)="onModeVacation()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'vacation' }" [disabled]="info.autoMode.mode === 'vacation'">Presence</button>
-      <button class="btn btn-primary" (click)="onModeAbsent()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'absent' }" [disabled]="info.autoMode.mode === 'absent'">Absence</button>
-      <button class="btn btn-primary" (click)="onModeCustom()" [ngClass]="{'btn-lg active' : info.autoMode.mode === 'custom' }" [disabled]="info.autoMode.mode === 'custom'">Custom</button>
-
-   <!--   onResetAlert()  -->
-    </div>
-  </div>
-  <div class="raw" *ngIf="info.autoMode.mode === 'off' && !info.pelletMonitor.operatingMode.includes('alert')">
-    <BR>
-    <div class="col-xs-12 autoPanel">
-      <strong>Commands: </strong><!--      {{info.pelletMonitor.operatingMode}}<br/> -->
-      <button class="btn btn-primary active" (click)="onStart()" [ngClass]="{'btn-lg active' : info.pelletMonitor.operatingMode === 'starting' }" [disabled]="info.pelletMonitor.operatingMode !== 'off'">Start</button>
-      <button class="btn btn-primary" (click)="onStop()" [ngClass]="{'btn-lg active' : info.pelletMonitor.operatingMode === 'stopping' }" [disabled]="info.pelletMonitor.operatingMode !== 'on'  ||  info.pelletMonitor.operatingMode !== 'cleaning'">Stop</button>
-      <button class="btn btn-primary" (click)="onClean()" [ngClass]="{'btn-lg active' : info.pelletMonitor.operatingMode === 'cleaning' }" [disabled]="info.pelletMonitor.operatingMode !== 'off' ">Clean</button>&nbsp;
-      <button class="btn btn-success" (click)="onIncPower()" [disabled]="info.pelletMonitor.power==6">Power +</button>
-      <button class="btn btn-success" (click)="onDecPower()" [disabled]="info.pelletMonitor.power==1">Power -</button>
-    </div>
-  </div>
-  <BR>
-  <div class="raw" *ngIf="info.pelletMonitor.operatingMode.includes('alert')">
-    <div class="col-xs-12 autoPanel" style="background-color: #f10000;">
-      <button class="btn btn-primary" (click)="onResetAlert()">Reset Alert</button>
-    </div>
-  </div>
-  <div class="raw" *ngIf="info.pelletGauge.remaining < 10">
-    <div class="col-xs-12 autoPanel" style="background-color: #f10000;">
-      WARNING: The amount of pellets is LOW !!!
-    </div>
-  </div>
-
+<div class="dashboard" *ngIf="info as data; else loading">
+  <div class="page-heading"><div><span class="eyebrow">VUE D'ENSEMBLE</span><h1>Tableau de bord</h1><p>Surveillance et pilotage du poêle à granulés</p></div><span class="refresh-indicator"><i></i> Actualisation automatique · 2 s</span></div>
+  <div class="alert-banner" *ngIf="data.pelletMonitor?.operatingMode?.includes('alert')"><div><strong>⚠ Alerte du poêle</strong><span>Une intervention peut être nécessaire.</span></div><button (click)="onResetAlert()">Réinitialiser l'alerte</button></div>
+  <div class="alert-banner low" *ngIf="data.pelletGauge?.remaining < 10"><strong>⚠ Réserve de granulés faible</strong><span>Il reste {{data.pelletGauge.remaining | number:'1.0-1'}} kg.</span></div>
+  <section class="summary-grid">
+    <article class="tile stove"><div class="tile-label"><span class="circle-icon">♨</span> POÊLE</div><div class="stove-state">{{data.pelletMonitor?.operatingMode || 'Inconnu' | uppercase}}</div><p>État de fonctionnement</p><div class="stove-bottom"><div><span>Puissance</span><strong>{{data.pelletMonitor?.power ?? '—'}} <small>/ 6</small></strong></div><div><span>Consommation</span><strong>{{data.pelletMonitor?.conso !== undefined ? (data.pelletMonitor.conso | number:'1.0-1') : '—'}} <small>kg/h</small></strong></div></div></article>
+    <article class="tile"><div class="tile-label"><span class="circle-icon">♧</span> INTÉRIEUR</div><div class="big-value">{{data.indoorData?.temp ?? '—'}}<small>°C</small></div><p>Température ambiante</p><div class="metric-footer"><span>Humidité</span><strong>{{data.indoorData?.humi ?? '—'}} %</strong></div></article>
+    <article class="tile"><div class="tile-label"><span class="circle-icon">☁</span> EXTÉRIEUR</div><div class="weather-value"><div class="big-value">{{data.outdoorData?.temp ?? '—'}}<small>°C</small></div><img *ngIf="data.outdoorData?.icon" [src]="data.outdoorData.icon" alt="Météo" /></div><p>Température extérieure</p><div class="metric-footer"><span>Humidité</span><strong>{{data.outdoorData?.humi ?? '—'}} %</strong></div></article>
+    <article class="tile"><div class="tile-label"><span class="circle-icon">◈</span> GRANULÉS</div><div class="big-value">{{data.pelletGauge?.remaining !== undefined ? (data.pelletGauge.remaining | number:'1.0-1') : '—'}}<small>kg</small></div><p>Quantité restante</p><div class="metric-footer"><span>Stock estimé</span><strong [class.warning]="data.pelletGauge?.remaining <= 10">{{data.pelletGauge?.remaining <= 10 ? 'Niveau bas' : 'Disponible'}}</strong></div></article>
+  </section>
+  <section class="details-grid">
+    <article class="panel"><div class="section-head"><div><span class="eyebrow">RÉGLAGES</span><h2>Mode de fonctionnement</h2></div><span class="mode-pill">{{modeName(data.autoMode?.mode)}}</span></div><p class="section-description">Choisissez la façon dont votre poêle doit fonctionner.</p><div class="mode-grid">
+      <button *ngFor="let mode of modes" class="mode-button" [class.chosen]="data.autoMode?.mode === mode.key" [disabled]="data.autoMode?.mode === mode.key" (click)="selectMode(mode.key)"><span class="mode-symbol">{{mode.icon}}</span><span>{{mode.label}}</span><small>{{mode.description}}</small></button>
+    </div></article>
+    <article class="panel water-panel"><div class="section-head"><div><span class="eyebrow">CHAUFFAGE</span><h2>Température de l'eau</h2></div></div><div class="water-reading">{{data.pelletMonitor?.tempWater ?? '—'}} <small>°C</small></div><p>Température actuelle</p><div class="target"><span>Consigne</span><strong>{{data.pelletMonitor?.tempWaterConsigne ?? '—'}} °C</strong></div></article>
+  </section>
+  <section class="panel controls" *ngIf="data.autoMode?.mode === 'off' && !data.pelletMonitor?.operatingMode?.includes('alert')"><div class="section-head"><div><span class="eyebrow">PILOTAGE MANUEL</span><h2>Commandes du poêle</h2></div></div><div class="control-buttons"><button class="action start" (click)="onStart()" [disabled]="data.pelletMonitor?.operatingMode !== 'off'">▶ Démarrer</button><button class="action stop" (click)="onStop()" [disabled]="data.pelletMonitor?.operatingMode !== 'on' && data.pelletMonitor?.operatingMode !== 'cleaning'">■ Arrêter</button><button class="action" (click)="onClean()" [disabled]="data.pelletMonitor?.operatingMode !== 'off'">↻ Nettoyer</button><span class="control-separator"></span><button class="action" (click)="onDecPower()" [disabled]="data.pelletMonitor?.power <= 1">− Puissance</button><button class="action" (click)="onIncPower()" [disabled]="data.pelletMonitor?.power >= 6">+ Puissance</button></div></section>
 </div>
+<ng-template #loading><div class="loading-state">Connexion au poêle…<small>En attente des premières données.</small></div></ng-template>

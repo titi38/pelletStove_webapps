@@ -1,15 +1,16 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { PelletService } from '../services/pellets.service';
 import { interval } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-oldstyle',
   templateUrl: './oldstyle.component.html',
   styleUrls: ['./oldstyle.component.scss']
 })
 export class OldstyleComponent implements OnInit, OnDestroy {
 
-  constructor(private pelletService: PelletService) { }
+  constructor(private pelletService: PelletService, private cdr: ChangeDetectorRef) { }
   lcdMessage: string;
   refreshLcdMsgSubscription: any;
 
@@ -40,6 +41,7 @@ export class OldstyleComponent implements OnInit, OnDestroy {
         let aa: any ;
         aa = response;
         this.lcdMessage = aa.result;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {

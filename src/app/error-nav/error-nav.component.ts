@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-error-nav',
   templateUrl: './error-nav.component.html',
   styleUrls: ['./error-nav.component.scss']

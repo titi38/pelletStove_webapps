@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-shutdown',
   templateUrl: './shutdown.component.html',
   styleUrls: ['./shutdown.component.scss']

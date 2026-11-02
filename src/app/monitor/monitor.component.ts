@@ -1,8 +1,9 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { PelletService } from '../services/pellets.service';
 import { interval } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-monitor',
   templateUrl: './monitor.component.html',
   styleUrls: ['./monitor.component.scss']
@@ -11,6 +12,27 @@ import { interval } from 'rxjs';
 export class MonitorComponent implements OnInit, OnDestroy {
 
   info: any;
+  modes = [
+    {key: 'off', label: 'Manuel', description: 'Contrôle direct', icon: '✋'},
+    {key: 'basic', label: 'Automatique', description: 'Régulation', icon: '◉'},
+    {key: 'vacation', label: 'Présence', description: 'À la maison', icon: '⌂'},
+    {key: 'absent', label: 'Absence', description: 'Économie', icon: '◇'},
+    {key: 'custom', label: 'Personnalisé', description: 'Sur mesure', icon: '⚙'}
+  ];
+
+  modeName(key: string): string {
+    const item = this.modes.find(m => m.key === key);
+    return item ? item.label : 'Inconnu';
+  }
+
+  selectMode(key: string): void {
+    if (key === 'off') { this.onModeOff(); }
+    else if (key === 'basic') { this.onModeNormal(); }
+    else if (key === 'vacation') { this.onModeVacation(); }
+    else if (key === 'absent') { this.onModeAbsent(); }
+    else if (key === 'custom') { this.onModeCustom(); }
+  }
+
 /*  info = { 'indoorData' : {'temp': 17.3, 'humi' : 52.1, 'humidex' : 17.45360285163524},
     'pelletMonitor' : {'power' : 1, 'tempWater' : 48, 'tempWaterConsigne' : 69, 'operatingMode' : 'on', 'conso': 791.4893617021277 } ,
     'outdoorData' : {'temp' : 1.98, 'humi' : 80, 'wind_speed' : 4, 'wind_dir' : 0, 'icon' : 'http://openweathermap.org/img/w/10n.png'},
@@ -18,11 +40,12 @@ export class MonitorComponent implements OnInit, OnDestroy {
 */
 
 //  constructor() { }
-  constructor(private pelletService: PelletService) { }
+  constructor(private pelletService: PelletService, private cdr: ChangeDetectorRef) { }
 
   refreshInfoSubscription: any;
 
   ngOnInit() {
+    this.onRefreshInfo();
     const counter = interval( 2000 );
     this.refreshInfoSubscription = counter.subscribe(
       (value) => {
@@ -43,6 +66,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.refreshInfo().subscribe(
       (response) =>{
         this.info = response;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {
@@ -55,6 +79,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.sendCommand("incPower").subscribe(
       (response) =>{
         //this.info = response;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {
@@ -67,6 +92,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.sendCommand("decPower").subscribe(
       (response) =>{
         //this.info = response;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {
@@ -79,6 +105,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.sendCommand("start").subscribe(
       (response) =>{
         //this.info = response;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {
@@ -91,6 +118,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.sendCommand("stop").subscribe(
       (response) =>{
         //this.info = response;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {
@@ -103,6 +131,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.sendCommand("clean").subscribe(
       (response) =>{
         //this.info = response;
+        this.cdr.markForCheck();
         console.log(response);
       },
       (error) => {
@@ -115,6 +144,7 @@ onModeOff() {
   this.pelletService.sendCommand("auto&mode=off").subscribe(
     (response) =>{
       //this.info = response;
+        this.cdr.markForCheck();
       console.log(response);
     },
     (error) => {
@@ -127,6 +157,7 @@ onModeNormal() {
   this.pelletService.sendCommand("auto&mode=on").subscribe(
     (response) =>{
       //this.info = response;
+        this.cdr.markForCheck();
       console.log(response);
     },
     (error) => {
@@ -139,6 +170,7 @@ onModeVacation() {
   this.pelletService.sendCommand("auto&mode=vac").subscribe(
     (response) =>{
       //this.info = response;
+        this.cdr.markForCheck();
       console.log(response);
     },
     (error) => {
@@ -151,6 +183,7 @@ onModeAbsent() {
   this.pelletService.sendCommand("auto&mode=abs").subscribe(
     (response) =>{
       //this.info = response;
+        this.cdr.markForCheck();
       console.log(response);
     },
     (error) => {
@@ -163,6 +196,7 @@ onModeCustom() {
   this.pelletService.sendCommand("auto&mode=custom").subscribe(
     (response) =>{
       //this.info = response;
+        this.cdr.markForCheck();
       console.log(response);
     },
     (error) => {
@@ -175,6 +209,7 @@ onResetAlert() {
   this.pelletService.sendCommand("resetAlert").subscribe(
     (response) =>{
       //this.info = response;
+        this.cdr.markForCheck();
       console.log(response);
     },
     (error) => {

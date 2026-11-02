@@ -1,0 +1,7 @@
+{
+  "/dynamic": {
+    "target": "http://pellet.local",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
