@@ -1,28 +1,19 @@
-# Pellet
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.0.4.
-
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
 # pelletStove_webapps
+PelletControl — Angular 22 migration (V4 candidate)
+Base : front tactile V3.4, affichage 1024x600, écran manuel, statistiques combinées.
+
+Prérequis
+Node.js >= 24.15.0 (recommandé Node 24 LTS), npm.
+
+nvm install 24
+nvm use 24
+npm install
+npm start
+Puis http://localhost:4200 . Compilation production : npm run build. Le site compilé se trouve dans dist/pellet/browser/.
+
+Changements
+Angular 22.2 / TypeScript 6 / RxJS 7.8 / Sass.
+Dépendances obsolètes retirées : node-sass, Bootstrap 3, ng-bootstrap, Protractor, TSLint.
+Google Charts conservé par un composant adaptateur local, sans wrapper Angular 12.
+API Navajo inchangée : http://pellet.local:8080.
+Les anciennes routes Configuration redirigent toujours vers Accueil.
