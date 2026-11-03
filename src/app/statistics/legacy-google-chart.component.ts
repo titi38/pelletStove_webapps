@@ -56,7 +56,7 @@ export class LegacyGoogleChartComponent implements AfterViewInit, OnChanges, OnD
       if (!Array.isArray(row) || !(row[0] instanceof Date)) continue;
       table.addRow(row);
     }
-    const chart = new google.visualization.LineChart(this.host.nativeElement);
+    const chart = new google.visualization[this.type === 'ColumnChart' ? 'ColumnChart' : 'LineChart'](this.host.nativeElement);
     chart.draw(table, this.options);
   }
 }

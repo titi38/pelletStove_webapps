@@ -1,28 +1,31 @@
 <section class="stats-page">
   <div class="stats-header">
-    <div><p class="eyebrow">HISTORIQUE DU POÊLE</p><h1>Statistiques</h1>
-      <p class="subtitle">Température, hygrométrie et puissance · relevés toutes les 15 minutes</p></div>
-    <div class="freshness" *ngIf="updatedAt">Actualisé à {{updatedAt | date:'HH:mm:ss'}} · auto 1 min</div>
+    <div><h1>Statistiques</h1><p>Intérieur, extérieur et consommation · dernières 24 heures</p></div>
+    <span class="freshness" *ngIf="updatedAt">Actualisé à {{updatedAt | date:'HH:mm:ss'}} · auto 1 min</span>
   </div>
   <div class="notice warning" *ngIf="error">{{error}}</div>
   <div class="notice" *ngIf="loading">Chargement des statistiques…</div>
   <ng-container *ngIf="!loading && count">
     <div class="kpis">
-      <div class="kpi"><span>Température moyenne</span><strong>{{averageTemp === null ? '—' : (averageTemp | number:'1.1-1') }}<small *ngIf="averageTemp !== null"> °C</small></strong></div>
-      <div class="kpi"><span>Humidité moyenne</span><strong>{{averageHumidity === null ? '—' : (averageHumidity | number:'1.1-1') }}<small *ngIf="averageHumidity !== null"> %</small></strong></div>
-      <div class="kpi"><span>Dernière puissance moyenne</span><strong>{{lastMode === null ? '—' : (lastMode | number:'1.0-2') + ' / 6'}}</strong></div>
-      <div class="kpi"><span>Créneaux reçus</span><strong>{{count}} <small>/ 96</small></strong></div>
+      <div class="kpi"><span>Temp. intérieure</span><strong>{{avgIndoorTemp === null ? '—' : (avgIndoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
+      <div class="kpi"><span>Hygro. intérieure</span><strong>{{avgIndoorHumidity === null ? '—' : (avgIndoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
+      <div class="kpi"><span>Temp. extérieure</span><strong>{{avgOutdoorTemp === null ? '—' : (avgOutdoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
+      <div class="kpi"><span>Hygro. extérieure</span><strong>{{avgOutdoorHumidity === null ? '—' : (avgOutdoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
+      <div class="kpi"><span>Conso. moyenne</span><strong>{{avgConsumption === null ? '—' : (avgConsumption | number:'1.2-2')}}<small> kg/h</small></strong>
+        <span class="daily" *ngIf="avgDailyConsumption !== null">{{dailyConsumptionIsEstimate ? 'Est. ' : ''}}{{avgDailyConsumption | number:'1.1-1'}} kg/jour</span></div>
     </div>
-    <div class="chart-single">
-      <article class="chart-card">
-        <h2>Température, humidité et puissance · dernières 24 heures</h2>
-        <google-chart type="LineChart" [data]="combinedData"
-          [columnNames]="['Heure', 'Température (°C)', 'Humidité (%)', 'Puissance (0–6)']"
-          [options]="combinedOptions" [dynamicResize]="true"
-          ></google-chart>
-      </article>
-    </div>
-    <p class="note">Puissance : courbe verte pointillée. L’axe de droite affiche l’humidité en % et la puissance correspondante sur 6 (valeurs normalisées). Survoler ou toucher un point indique la puissance réelle. Les périodes sans mesure sont interrompues. Historique glissant de 24 h maximum, non persistant.</p>
+    <article class="chart-card atmosphere">
+      <h2>Ambiance intérieure / extérieure</h2>
+      <google-chart type="LineChart" [data]="atmosphereData"
+        [columnNames]="['Heure', 'Temp. intérieure (°C)', 'Hygro. intérieure (%)', 'Temp. extérieure (°C)', 'Hygro. extérieure (%)']"
+        [options]="atmosphereOptions" [dynamicResize]="true"></google-chart>
+    </article>
+    <article class="chart-card consumption">
+      <h2>Consommation de granulés (kg/h)</h2>
+      <google-chart type="ColumnChart" [data]="consumptionData"
+        [columnNames]="['Heure', 'Consommation (kg/h)']"
+        [options]="consumptionOptions" [dynamicResize]="true"></google-chart>
+    </article>
   </ng-container>
   <div class="notice" *ngIf="!loading && !error && !count">Pas encore de mesures disponibles.</div>
 </section>
