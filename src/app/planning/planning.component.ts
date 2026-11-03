@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { PelletService, PresencePeriod, PresenceSchedule } from '../services/pellets.service';
 
 @Component({selector: 'app-planning', standalone: false, templateUrl: './planning.component.html', styleUrls: ['./planning.component.scss']})
-export class PlanningComponent implements OnInit {
+export class PlanningComponent implements OnInit, OnDestroy {
   readonly weekdays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
   selectedDay = 0;
   schedule: PresenceSchedule | null = null;
@@ -15,19 +15,43 @@ export class PlanningComponent implements OnInit {
   loading = true;
   saving = false;
   dirty = false;
+  private saveTimer?: ReturnType<typeof setTimeout>;
+  private revision = 0;
+  private persistedRevision = 0;
   message = '';
   error = '';
   constructor(private api: PelletService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() { this.load(); }
+  ngOnDestroy() { this.cancelSaveTimer(); }
+  private cancelSaveTimer() {
+    if (this.saveTimer !== undefined) clearTimeout(this.saveTimer);
+    this.saveTimer = undefined;
+  }
+  private changed() {
+    this.revision++;
+    this.dirty = true;
+    this.error = '';
+    this.message = '';
+    this.cancelSaveTimer();
+    this.saveTimer = setTimeout(() => { this.saveTimer = undefined; this.flushSave(); }, 650);
+    this.cdr.markForCheck();
+  }
+  onComfortChange() { this.changed(); }
   clone(s: PresenceSchedule): PresenceSchedule { return JSON.parse(JSON.stringify(s)); }
   get periods(): PresencePeriod[] { return this.edited?.days[this.selectedDay] ?? []; }
   load() {
+    if (this.dirty || this.saving) {
+      this.error = 'Modifications en cours : actualisation désactivée pour éviter de perdre le planning.';
+      this.cdr.markForCheck();
+      return;
+    }
+    this.cancelSaveTimer();
     this.loading = true; this.error = '';
     this.api.refreshSchedule().subscribe({
       next: s => {
         this.schedule = this.clone(s); this.edited = this.clone(s);
-        this.loading = false; this.dirty = false; this.message = ''; this.cdr.markForCheck();
+        this.loading = false; this.dirty = false; this.message = ''; this.revision = 0; this.persistedRevision = 0; this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false; this.error = 'Endpoint /dynamic/schedule.json indisponible. Installer le backend Programmation avant toute sauvegarde.';
@@ -48,19 +72,19 @@ export class PlanningComponent implements OnInit {
       this.error = 'Horaires invalides. Une période doit débuter avant sa fin (HH:MM).'; return;
     }
     if (this.periods.some((p, i) => i !== this.editing && this.start < p.end && this.end > p.start)) {
-      this.error = 'Cette période chevauche une autre période de présence.'; return;
+      this.error = 'Cette période chevauche une autre période de fonctionnement.'; return;
     }
     const newPeriods = this.periods.map(p => ({...p}));
     if (this.editing < 0) newPeriods.push({start: this.start, end: this.end});
     else newPeriods[this.editing] = {start: this.start, end: this.end};
     newPeriods.sort((a,b) => a.start.localeCompare(b.start));
     this.edited.days[this.selectedDay] = newPeriods;
-    this.dirty = true; this.editing = -1; this.error = ''; this.message = '';
+    this.editing = -1; this.changed();
   }
   removePeriod(index: number) {
     if (!this.edited) return;
     this.edited.days[this.selectedDay] = this.periods.filter((_,i) => i !== index);
-    this.dirty = true; this.editing = -1; this.message = '';
+    this.editing = -1; this.changed();
   }
   copyPeriods() {
     if (!this.edited) return;
@@ -68,23 +92,47 @@ export class PlanningComponent implements OnInit {
       if (selected && i !== this.selectedDay) this.edited!.days[i] = this.periods.map(p=>({...p}));
     });
     this.showCopy = false; this.copyTargets = Array(7).fill(false);
-    this.dirty = true; this.message = '';
+    this.changed();
   }
-  save() {
-    if (!this.edited || this.saving) return;
-    if (!Number.isFinite(this.edited.comfort) ||
-        this.edited.comfort < 10 || this.edited.comfort > 25) {
-      this.error = 'Consigne invalide (10 à 25 °C).'; return;
+  private flushSave() {
+    if (!this.edited || this.saving || !this.dirty) return;
+    const comfort = Number(this.edited.comfort);
+    if (!Number.isFinite(comfort) || comfort < 10 || comfort > 25) {
+      this.error = 'Consigne invalide (10 à 25 °C). Modifications non enregistrées.';
+      this.cdr.markForCheck();
+      return;
     }
-    this.saving = true; this.error = '';
-    this.api.saveSchedule(this.edited).subscribe({
+    const snapshot = this.clone(this.edited);
+    snapshot.comfort = comfort;
+    const savingRevision = this.revision;
+    this.saving = true;
+    this.error = '';
+    this.cdr.markForCheck();
+    this.api.saveSchedule(snapshot).subscribe({
       next: result => {
         this.saving = false;
-        if (!result.success) this.error = result.error || 'Sauvegarde refusée par le backend.';
-        else { this.schedule = this.clone(this.edited!); this.dirty = false; this.message = 'Programmation enregistrée sur le Raspberry Pi.'; }
+        if (!result.success) {
+          this.error = result.error || 'Sauvegarde refusée par le backend. Modifications non enregistrées.';
+        } else {
+          this.schedule = snapshot;
+          this.persistedRevision = savingRevision;
+          this.dirty = this.persistedRevision !== this.revision;
+          if (!this.dirty) this.message = 'Programmation enregistrée automatiquement.';
+        }
+        // Ne jamais envoyer deux écritures simultanées : une modification
+        // effectuée pendant l'enregistrement est envoyée après la réponse.
+        if (this.dirty && this.revision > savingRevision && result.success) this.queueLatest();
         this.cdr.markForCheck();
       },
-      error: () => { this.saving = false; this.error = 'Échec de la sauvegarde sur le Raspberry Pi.'; this.cdr.markForCheck(); }
+      error: () => {
+        this.saving = false;
+        this.error = 'Échec de la sauvegarde automatique. Modifications conservées localement.';
+        this.cdr.markForCheck();
+      }
     });
+  }
+  private queueLatest() {
+    this.cancelSaveTimer();
+    this.saveTimer = setTimeout(() => { this.saveTimer = undefined; this.flushSave(); }, 250);
   }
 }

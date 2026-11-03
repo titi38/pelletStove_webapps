@@ -1,21 +1,34 @@
 <section class="logs-page">
-  <header><div><h1>Journal du poêle</h1><p>Derniers messages du backend Navajo</p></div><button (click)="refresh()">↻ Actualiser</button></header>
+  <header><h1>Journal du poêle</h1><span class="live"><span class="live-dot"></span> Actualisation automatique · 2 s</span></header>
   <div class="controls">
-    <input aria-label="Rechercher dans le journal" placeholder="Rechercher..." [(ngModel)]="filter" (ngModelChange)="applyFilter()" />
-    <select aria-label="Filtrer par niveau" [(ngModel)]="level" (ngModelChange)="applyFilter()">
-      <option value="">Tous les niveaux</option><option *ngFor="let l of ['DEBUG','INFO','WARNING','ALERT','ERROR','FATAL']" [value]="l">{{l}}</option>
+    <input aria-label="Rechercher dans le journal" placeholder="Rechercher…" [(ngModel)]="filter" />
+    <select aria-label="Seuil de gravité" [(ngModel)]="level">
+      <option value="WARN">WARN+ · avertissements et erreurs</option>
+      <option value="INFO">INFO+ · informations et erreurs</option>
+      <option value="ALL">Tous · y compris DEBUG</option>
     </select>
     <button (click)="exportCsv()">Exporter CSV</button>
-    <span>{{filtered.length}} entrée(s)</span>
+    <span class="count">{{filtered.length}} message(s)</span>
   </div>
-  <div class="error" *ngIf="error">{{error}}</div>
-  <div class="table-scroll"><table><thead><tr>
-    <th (click)="setSort('date')">Date ↕</th><th (click)="setSort('level')">Niveau ↕</th><th (click)="setSort('message')">Message ↕</th><th>Détails</th>
-  </tr></thead><tbody>
-    <tr *ngFor="let r of visible; let i=index">
-      <td class="date">{{r.date}}</td><td><span class="level" [attr.data-level]="r.level">{{r.level}}</span></td>
-      <td class="message">{{r.message}}</td><td><button *ngIf="r.details" (click)="expanded=expanded===i?null:i">{{expanded===i?'Masquer':'Afficher'}}</button><div class="details" *ngIf="expanded===i">{{r.details}}</div></td>
-    </tr><tr *ngIf="!visible.length"><td colspan="4">Aucune entrée</td></tr>
-  </tbody></table></div>
-  <footer><button [disabled]="page===0" (click)="page=page-1">← Précédent</button><span>Page {{page+1}} / {{pages}}</span><button [disabled]="page>=pages-1" (click)="page=page+1">Suivant →</button></footer>
+  <div class="error" *ngIf="error" role="alert">{{error}}</div>
+  <div class="table-scroll" role="region" aria-label="Messages du poêle" tabindex="0">
+    <table>
+      <thead><tr>
+        <th (click)="setSort('date')" title="Trier par date">Date ↕</th>
+        <th (click)="setSort('level')" title="Trier par niveau">Niveau ↕</th>
+        <th (click)="setSort('message')" title="Trier par message">Message ↕</th>
+        <th>Détails</th>
+      </tr></thead>
+      <tbody>
+        <tr *ngFor="let r of filtered">
+          <td class="date">{{r.date}}</td>
+          <td><span class="level" [attr.data-level]="r.level">{{r.level}}</span></td>
+          <td class="message">{{r.message}}</td>
+          <td><button *ngIf="r.details" (click)="expanded=expanded===rowKey(r)?null:rowKey(r)">{{expanded===rowKey(r)?'Masquer':'Afficher'}}</button>
+            <div class="details" *ngIf="expanded===rowKey(r)">{{r.details}}</div></td>
+        </tr>
+        <tr *ngIf="!filtered.length"><td colspan="4">Aucun message pour ce filtre.</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
