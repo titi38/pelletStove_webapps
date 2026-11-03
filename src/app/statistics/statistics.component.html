@@ -1,29 +1,29 @@
 <section class="stats-page">
   <div class="stats-header">
-    <div><h1>Statistiques</h1><p>Intérieur, extérieur et consommation · dernières 24 heures</p></div>
+    <div><h1>Statistiques</h1><p>Moyennes et historique sur 24 h</p></div>
     <span class="freshness" *ngIf="updatedAt">Actualisé à {{updatedAt | date:'HH:mm:ss'}} · auto 1 min</span>
   </div>
   <div class="notice warning" *ngIf="error">{{error}}</div>
   <div class="notice" *ngIf="loading">Chargement des statistiques…</div>
   <ng-container *ngIf="!loading && count">
     <div class="kpis">
-      <div class="kpi"><span>Temp. intérieure</span><strong>{{avgIndoorTemp === null ? '—' : (avgIndoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
-      <div class="kpi"><span>Hygro. intérieure</span><strong>{{avgIndoorHumidity === null ? '—' : (avgIndoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
-      <div class="kpi"><span>Temp. extérieure</span><strong>{{avgOutdoorTemp === null ? '—' : (avgOutdoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
-      <div class="kpi"><span>Hygro. extérieure</span><strong>{{avgOutdoorHumidity === null ? '—' : (avgOutdoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
-      <div class="kpi"><span>Conso. moyenne</span><strong>{{avgConsumption === null ? '—' : (avgConsumption | number:'1.2-2')}}<small> kg/h</small></strong>
-        <span class="daily" *ngIf="avgDailyConsumption !== null">{{dailyConsumptionIsEstimate ? 'Est. ' : ''}}{{avgDailyConsumption | number:'1.1-1'}} kg/jour</span></div>
+      <div class="kpi"><span>Temp. int. moyenne</span><strong>{{avgIndoorTemp === null ? '—' : (avgIndoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
+      <div class="kpi"><span>Humidité int. moyenne</span><strong>{{avgIndoorHumidity === null ? '—' : (avgIndoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
+      <div class="kpi"><span>Temp. ext. moyenne</span><strong>{{avgOutdoorTemp === null ? '—' : (avgOutdoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
+      <div class="kpi"><span>Humidité ext. moyenne</span><strong>{{avgOutdoorHumidity === null ? '—' : (avgOutdoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
+      <div class="kpi"><span>{{dailyConsumptionIsEstimate ? "Conso. estimée / jour" : "Conso. moyenne / jour"}}</span><strong>{{avgDailyConsumption === null ? '—' : (avgDailyConsumption | number:'1.1-1')}}<small> kg/jour</small></strong>
+        </div>
     </div>
     <article class="chart-card atmosphere">
-      <h2>Ambiance intérieure / extérieure</h2>
+      <h2>Température et hygrométrie</h2>
       <google-chart type="LineChart" [data]="atmosphereData"
-        [columnNames]="['Heure', 'Temp. intérieure (°C)', 'Hygro. intérieure (%)', 'Temp. extérieure (°C)', 'Hygro. extérieure (%)']"
+        [columnNames]="['Heure', 'Temp. intérieure (°C)', 'Humidité intérieure (%)', 'Temp. extérieure (°C)', 'Humidité extérieure (%)']"
         [options]="atmosphereOptions" [dynamicResize]="true"></google-chart>
     </article>
     <article class="chart-card consumption">
-      <h2>Consommation de granulés (kg/h)</h2>
+      <h2>Consommation de granulés</h2>
       <google-chart type="ColumnChart" [data]="consumptionData"
-        [columnNames]="['Heure', 'Consommation (kg/h)']"
+        [columnNames]="['Heure', 'Consommation (kg / 15 min)']"
         [options]="consumptionOptions" [dynamicResize]="true"></google-chart>
     </article>
   </ng-container>

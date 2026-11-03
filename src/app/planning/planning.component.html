@@ -1,34 +1,34 @@
 <div class="presence-page">
-  <div class="presence-title"><div><span class="eyebrow">CHAUFFAGE AUTOMATIQUE</span><h1>Programmation du chauffage</h1><p>Définissez les périodes pendant lesquelles le chauffage est autorisé.</p></div><button type="button" class="ghost" (click)="load()" [disabled]="dirty || saving" title="Actualiser après sauvegarde">↻ Actualiser</button></div>
+  <div class="presence-title"><div><h1>Configuration du mode Automatique</h1></div><button type="button" class="ghost" (click)="load()" [disabled]="dirty || saving" title="Actualiser après sauvegarde">↻ Actualiser</button></div>
   <div *ngIf="loading" class="notice">Chargement de la programmation…</div>
   <div *ngIf="error" class="notice bad" role="alert">{{error}}</div>
   <div *ngIf="message" class="notice good">{{message}}</div>
   <ng-container *ngIf="edited as config">
     <div class="presence-layout">
       <section class="presence-card">
-        <div class="card-title"><h2>Périodes de fonctionnement</h2><span>Choisir un jour</span></div>
+        <div class="card-title"><h2>Horaires de fonctionnement</h2></div>
         <div class="day-tabs"><button *ngFor="let d of weekdays; let i=index" [class.active]="selectedDay===i" (click)="selectedDay=i;editing=-1;error=''">{{d.slice(0,3)}}</button></div>
         <div class="period-list">
           <div class="period" *ngFor="let p of periods; let i=index">
             <span class="clock">◷</span><strong>{{p.start}} – {{p.end}}</strong>
             <div class="period-actions"><button type="button" (click)="begin(i)" aria-label="Modifier la période">✎ Modifier</button><button type="button" class="delete" (click)="removePeriod(i)" aria-label="Supprimer la période">✕</button></div>
           </div>
-          <div *ngIf="periods.length===0" class="empty">Aucune période programmée ce jour.</div>
+          <div *ngIf="periods.length===0" class="empty">Aucun horaire programmé pour ce jour.</div>
         </div>
-        <button type="button" class="add" (click)="begin(-1)" *ngIf="editing===-1">＋ Ajouter une période de fonctionnement</button>
+        <button type="button" class="add" (click)="begin(-1)" *ngIf="editing===-1">＋ Ajouter une période</button>
         <div class="period-editor" *ngIf="editing!==-1">
-          <strong>{{editing<0?'Ajouter':'Modifier'}} une période de fonctionnement</strong>
+          <strong>{{editing<0?'Ajouter':'Modifier'}} une période</strong>
           <label>Début <input type="time" [(ngModel)]="start" /></label>
           <label>Fin <input type="time" [(ngModel)]="end" /></label>
           <button type="button" class="primary" (click)="savePeriod()">Valider</button>
           <button type="button" class="ghost" (click)="editing=-1;error=''">Annuler</button>
         </div>
-        <button type="button" class="ghost copy" (click)="showCopy=!showCopy">⧉ Copier les horaires vers d'autres jours</button>
+        <button type="button" class="ghost copy" (click)="showCopy=!showCopy">⧉ Copier vers d'autres jours</button>
         <div *ngIf="showCopy" class="copy-panel"><label *ngFor="let d of weekdays;let i=index"><input type="checkbox" [(ngModel)]="copyTargets[i]" [disabled]="i===selectedDay" />{{d}}</label><button class="primary" (click)="copyPeriods()">Copier</button></div>
       </section>
       <aside class="presence-card settings">
-        <h2>Températures de consigne</h2>
-        <p>Consigne unique du mode Automatique, appliquée pendant les périodes de fonctionnement.</p>
+        <h2>Température de consigne</h2>
+        <p></p>
         <label>Consigne <span><input type="number" [(ngModel)]="config.comfort" (ngModelChange)="onComfortChange()" min="10" max="25" step="0.5" /> °C</span></label>
         <div class="save-actions" aria-live="polite"><span *ngIf="saving">Enregistrement automatique…</span><span *ngIf="dirty && !saving">Modifications en attente de sauvegarde</span><span *ngIf="!dirty && !saving">Les modifications sont sauvegardées automatiquement.</span></div>
       </aside>

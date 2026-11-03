@@ -1,5 +1,5 @@
 <div class="dashboard" *ngIf="info as data; else loading">
-  <div class="page-heading"><div><span class="eyebrow">VUE D'ENSEMBLE</span><h1>Tableau de bord</h1><p>Surveillance et pilotage du poêle à granulés</p></div><span class="refresh-indicator"><i></i> Actualisation automatique · 2 s</span></div>
+  <div class="page-heading"><div><span class="eyebrow">VUE D'ENSEMBLE</span><h1>Tableau de bord</h1></div><span class="refresh-indicator"><i></i> Actualisation automatique · 2 s</span></div>
   <div class="alert-banner" *ngIf="data.pelletMonitor?.operatingMode?.includes('alert')"><div><strong>⚠ Alerte du poêle</strong><span>Une intervention peut être nécessaire.</span></div><button (click)="onResetAlert()">Réinitialiser l'alerte</button></div>
   <div class="alert-banner low" *ngIf="data.pelletGauge?.remaining < 10"><strong>⚠ Réserve de granulés faible</strong><span>Il reste {{data.pelletGauge.remaining | number:'1.0-1'}} kg.</span></div>
   <section class="summary-grid">
@@ -15,7 +15,7 @@
     <article class="panel water-panel"><div class="section-head"><div><span class="eyebrow">CHAUFFAGE</span><h2>Température de l'eau</h2></div></div><div class="water-reading">{{data.pelletMonitor?.tempWater ?? '—'}} <small>°C</small></div><p>Température actuelle</p><div class="target"><span>Consigne</span><strong>{{data.pelletMonitor?.tempWaterConsigne ?? '—'}} °C</strong></div></article>
   </section>
   <section class="panel presence-actions" *ngIf="data.autoMode?.mode === 'basic' && schedule as sc">
-    <div class="section-head"><div><span class="eyebrow">PROGRAMMATION</span><h2>Mode automatique <small>· Consigne {{sc.comfort}} °C</small></h2></div><a routerLink="/planning" class="schedule-link">Modifier les périodes de présence</a></div>
+    <div class="section-head"><div><span class="eyebrow">PROGRAMMATION</span><h2>Mode automatique <small>· Consigne {{sc.comfort}} °C</small></h2></div><a routerLink="/planning" class="schedule-link">Modifier les horaires</a></div>
     <div class="presence-controls">
       <button (click)="onPresenceOverride('leave')" [disabled]="scheduleBusy || data.pelletMonitor?.operatingMode !== 'on'">↗ Je pars</button>
       <button (click)="onPresenceOverride('arrive')" [disabled]="scheduleBusy || data.pelletMonitor?.operatingMode !== 'off'">⌂ Je rentre</button>

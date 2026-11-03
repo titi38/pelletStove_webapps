@@ -10,7 +10,7 @@ interface Slot {
   indoorHumidity: Measurement;
   outdoorTemp: Measurement;
   outdoorHumidity: Measurement;
-  consumption: Measurement; // hourly equivalent (kg/h) computed from 15min mass
+  consumption: Measurement; // mass (kg) measured during each 15-minute slot
 }
 
 @Component({
@@ -63,7 +63,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     backgroundColor: 'transparent',
     colors: ['#64b97c'],
     legend: 'none',
-    vAxis: { title: 'kg/h', viewWindow: { min: 0 }, textStyle: { color: '#43865d', fontSize: 10 }, gridlines: { color: '#edf1ee' } },
+    vAxis: { title: 'kg / 15 min', viewWindow: { min: 0 }, textStyle: { color: '#43865d', fontSize: 10 }, gridlines: { color: '#edf1ee' } },
     hAxis: { format: 'HH:mm', textStyle: { color: '#718078', fontSize: 10 }, gridlines: { color: '#edf1ee' } },
     chartArea: { left: this.leftMargin, width: this.plotWidth, top: 8, height: '80%' },
     bar: { groupWidth: '88%' },
@@ -109,18 +109,18 @@ export class StatisticsComponent implements OnInit, OnDestroy {
             indoorHumidity: missingIndoor ? null : this.value(values, 1),
             outdoorTemp: this.value(values, 3),
             outdoorHumidity: this.value(values, 4),
-            consumption: this.massToRate(this.value(values, 5), 900)
+            consumption: this.value(values, 5)
           };
         });
         this.atmosphereData = rows.map(p => [p.date, p.indoorTemp, p.indoorHumidity, p.outdoorTemp, p.outdoorHumidity]);
         this.consumptionData = rows.map(p => [p.date, p.consumption]);
         // Include the current partial quarter, when backend exposes it.
-        // kg/h is normalized over *observed seconds*, never over 15 minutes.
+        // The unfinished slot contains the mass accumulated so far (kg).
         const partialMass = this.value(current, 'consumptionKg');
         const partialSeconds = this.value(current, 'observedSeconds');
         const validPartial = partialMass !== null && partialSeconds !== null && partialSeconds > 0;
         if (validPartial) {
-          this.consumptionData.push([currentQuarter, this.massToRate(partialMass, partialSeconds ?? 0)]);
+          this.consumptionData.push([currentQuarter, partialMass]);
         }
         this.count = rows.length;
         this.avgIndoorTemp = this.mean(rows.map(p => p.indoorTemp));
@@ -151,9 +151,6 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     const value = values == null ? undefined : values[key];
     return typeof value === 'number' && Number.isFinite(value)
       ? value : null;
-  }
-  private massToRate(massKg: Measurement, seconds: number): Measurement {
-    return massKg === null || seconds <= 0 ? null : massKg * 3600 / seconds;
   }
   private mean(values: Measurement[]): Measurement {
     const valid = values.filter((v): v is number => v !== null);
