@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { LogsComponent } from './logs/logs.component';
+import { PlanningComponent } from './planning/planning.component';
 import { MonitorComponent } from './monitor/monitor.component';
 import { ConfigComponent } from './config/config.component';
 import { OldstyleComponent } from './oldstyle/oldstyle.component';
@@ -12,6 +14,8 @@ const routes: Routes = [
   {path : 'monitor', component: MonitorComponent},
   {path : 'oldstyle', component: OldstyleComponent},
   {path : 'stats', component: StatisticsComponent},
+  {path : 'planning', component: PlanningComponent},
+  {path : 'logs', component: LogsComponent},
   {path : 'config', redirectTo: 'monitor'},
   {path : 'shutdown', component: ShutdownComponent},
   {path : '', redirectTo: 'monitor', pathMatch: 'full'},

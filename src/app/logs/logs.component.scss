@@ -1,0 +1,82 @@
+:host { display: block; }
+
+/* Journal : palette claire coherente avec les cartes du tableau de bord.
+   Ne pas utiliser des variables CSS de theme sombre ici : le fond est clair. */
+.logs-page {
+  color: #172b38;
+  padding: 10px 14px;
+}
+.logs-page header,
+.logs-page .controls,
+.logs-page footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.logs-page header h1 { font-size: 23px; margin: 0; color: #172b38; }
+.logs-page header p { margin: 3px 0 10px; color: #54716c; }
+.logs-page button,
+.logs-page input,
+.logs-page select {
+  font: inherit;
+  border: 1px solid #b8cbc5;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #17362f;
+  padding: 9px 12px;
+  min-height: 40px;
+}
+.logs-page button { cursor: pointer; }
+.logs-page button:hover:not(:disabled) { background: #e6f2ed; border-color: #4b8a74; }
+.logs-page button:focus-visible,
+.logs-page input:focus-visible,
+.logs-page select:focus-visible { outline: 3px solid #66a999; outline-offset: 1px; }
+.logs-page button:disabled { opacity: .55; cursor: default; }
+.logs-page .controls { justify-content: flex-start; margin: 6px 0 12px; }
+.logs-page .controls input { flex: 1; min-width: 140px; }
+.logs-page .table-scroll {
+  overflow: auto;
+  max-height: calc(100dvh - 270px);
+  border: 1px solid #c5d5cf;
+  border-radius: 10px;
+  background: #ffffff;
+}
+.logs-page table { border-collapse: collapse; width: 100%; font-size: 13px; color: #172b38; }
+.logs-page th {
+  position: sticky;
+  top: 0;
+  background: #213b48;
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  z-index: 1;
+}
+.logs-page th,
+.logs-page td { padding: 9px 10px; border-bottom: 1px solid #d9e4df; vertical-align: top; }
+.logs-page tbody tr:nth-child(even) { background: #f0f6f3; }
+.logs-page tbody tr:hover { background: #dcece4; }
+.logs-page .date { white-space: nowrap; color: #294b55; }
+.logs-page .message { min-width: 260px; color: #172b38; }
+.logs-page .level {
+  display: inline-block;
+  font-weight: 700;
+  border-radius: 5px;
+  padding: 3px 6px;
+  background: #e1eaf1;
+  color: #234967;
+}
+.logs-page .level[data-level="WARNING"],
+.logs-page .level[data-level="ALERT"] { background: #fff0c8; color: #7c4c00; }
+.logs-page .level[data-level="ERROR"],
+.logs-page .level[data-level="FATAL"] { background: #fbe3e3; color: #a02525; }
+.logs-page .level[data-level="INFO"] { background: #dceff9; color: #195b88; }
+.logs-page .details { white-space: pre-wrap; max-width: 370px; overflow-wrap: anywhere; padding: 6px; }
+.logs-page footer { justify-content: flex-end; margin-top: 10px; }
+.logs-page .error { color: #a02525; padding: 8px; }
+@media(max-width:650px) {
+  .logs-page { padding: 8px; }
+  .logs-page .controls input { min-width: 100%; }
+  .logs-page .table-scroll { max-height: calc(100dvh - 320px); }
+}

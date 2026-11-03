@@ -14,6 +14,16 @@
     </div></article>
     <article class="panel water-panel"><div class="section-head"><div><span class="eyebrow">CHAUFFAGE</span><h2>Température de l'eau</h2></div></div><div class="water-reading">{{data.pelletMonitor?.tempWater ?? '—'}} <small>°C</small></div><p>Température actuelle</p><div class="target"><span>Consigne</span><strong>{{data.pelletMonitor?.tempWaterConsigne ?? '—'}} °C</strong></div></article>
   </section>
+  <section class="panel presence-actions" *ngIf="data.autoMode?.mode === 'basic' && schedule as sc">
+    <div class="section-head"><div><span class="eyebrow">PROGRAMMATION</span><h2>Mode automatique <small>· Consigne {{sc.comfort}} °C</small></h2></div><a routerLink="/planning" class="schedule-link">Modifier les périodes de présence</a></div>
+    <div class="presence-controls">
+      <button (click)="onPresenceOverride('leave')" [disabled]="scheduleBusy || data.pelletMonitor?.operatingMode !== 'on'">↗ Je pars</button>
+      <button (click)="onPresenceOverride('arrive')" [disabled]="scheduleBusy || data.pelletMonitor?.operatingMode !== 'off'">⌂ Je rentre</button>
+      <button *ngIf="sc.override !== 'none'" (click)="onPresenceOverride('clear')" [disabled]="scheduleBusy">Annuler la dérogation</button>
+    </div>
+    <span *ngIf="sc.override !== 'none'" class="override-hint">Dérogation active : {{sc.override === 'arrive' ? 'présence anticipée' : 'fin de présence'}} · jusqu'au prochain changement programmé</span>
+    <span *ngIf="scheduleError" class="override-hint">{{scheduleError}}</span>
+  </section>
   <section class="panel controls" *ngIf="data.autoMode?.mode === 'off' && !data.pelletMonitor?.operatingMode?.includes('alert')"><div class="section-head"><div><span class="eyebrow">PILOTAGE MANUEL</span><h2>Commandes du poêle</h2></div></div><div class="control-buttons"><button class="action start" (click)="onStart()" [disabled]="data.pelletMonitor?.operatingMode !== 'off'">▶ Démarrer</button><button class="action stop" (click)="onStop()" [disabled]="data.pelletMonitor?.operatingMode !== 'on' && data.pelletMonitor?.operatingMode !== 'cleaning'">■ Arrêter</button><button class="action" (click)="onClean()" [disabled]="data.pelletMonitor?.operatingMode !== 'off'">↻ Nettoyer</button><span class="control-separator"></span><button class="action" (click)="onDecPower()" [disabled]="data.pelletMonitor?.power <= 1">− Puissance</button><button class="action" (click)="onIncPower()" [disabled]="data.pelletMonitor?.power >= 6">+ Puissance</button></div></section>
 </div>
 <ng-template #loading><div class="loading-state">Connexion au poêle…<small>En attente des premières données.</small></div></ng-template>

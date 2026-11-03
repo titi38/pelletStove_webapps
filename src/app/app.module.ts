@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { LegacyGoogleChartComponent } from './statistics/legacy-google-chart.component';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LogsComponent } from './logs/logs.component';
+import { PlanningComponent } from './planning/planning.component';
 import { MonitorComponent } from './monitor/monitor.component';
 
 import { PelletService} from './services/pellets.service';
@@ -21,6 +23,8 @@ import { ShutdownComponent } from './shutdown/shutdown.component';
   declarations: [
     AppComponent,
     MonitorComponent,
+    PlanningComponent,
+    LogsComponent,
     ConfigComponent,
     OldstyleComponent,
     ErrorNavComponent,

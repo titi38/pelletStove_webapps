@@ -54,3 +54,5 @@
   .controls{margin-top:11px}.control-buttons{margin-top:12px;gap:9px}
   .action{min-height:54px;padding:12px 15px;font-size:13px}
 }
+
+.presence-actions{margin-top:10px}.presence-actions .section-head{display:flex;justify-content:space-between;align-items:center}.presence-actions h2 small{font-size:12px;color:#6f8a84}.schedule-link{font-size:12px;color:#2d796c}.presence-controls{display:flex;gap:9px;margin-top:10px;align-items:center;flex-wrap:wrap}.presence-controls button{border:1px solid #cbdad8;background:#edf5f2;color:#28695e;border-radius:9px;padding:10px 15px;min-height:44px;cursor:pointer;font-weight:700}.presence-controls button:disabled{opacity:.34;cursor:not-allowed}.override-hint{display:block;margin-top:7px;font-size:12px;color:#51746d}@media(min-width:850px) and (max-height:700px){.presence-actions{margin-top:6px;padding:8px 12px}.presence-actions .section-head h2{font-size:14px}.presence-controls{margin-top:6px}.presence-controls button{min-height:36px;padding:6px 12px}.override-hint{font-size:10px;margin-top:4px}}

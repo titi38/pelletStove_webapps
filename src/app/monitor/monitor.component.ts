@@ -1,5 +1,5 @@
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
-import { PelletService } from '../services/pellets.service';
+import { PelletService, PresenceSchedule } from '../services/pellets.service';
 import { interval } from 'rxjs';
 
 @Component({
@@ -12,12 +12,29 @@ import { interval } from 'rxjs';
 export class MonitorComponent implements OnInit, OnDestroy {
 
   info: any;
+  schedule: PresenceSchedule | null = null;
+  scheduleBusy = false;
+  scheduleError = '';
+  private lastScheduleRefresh = 0;
+  onPresenceOverride(value: 'arrive' | 'leave' | 'clear') {
+    this.scheduleBusy = true;
+    this.pelletService.setPresenceOverride(value).subscribe({
+      next: response => {this.scheduleBusy = false; if (!response.success) this.scheduleError = response.error || 'Refusé'; this.loadSchedule(); this.cdr.markForCheck();},
+      error: () => {this.scheduleBusy = false; this.scheduleError = 'Commande de dérogation indisponible'; this.cdr.markForCheck();}
+    });
+  }
+  loadSchedule() {
+    this.pelletService.refreshSchedule().subscribe({
+      next: s => {this.schedule = s; this.cdr.markForCheck();},
+      error: () => {this.schedule = null; this.cdr.markForCheck();}
+    });
+  }
+
   modes = [
     {key: 'off', label: 'Manuel', description: 'Contrôle direct', icon: '✋'},
     {key: 'basic', label: 'Automatique', description: 'Régulation', icon: '◉'},
     {key: 'vacation', label: 'Présence', description: 'À la maison', icon: '⌂'},
-    {key: 'absent', label: 'Absence', description: 'Économie', icon: '◇'},
-    {key: 'custom', label: 'Personnalisé', description: 'Sur mesure', icon: '⚙'}
+    {key: 'absent', label: 'Absence', description: 'Économie', icon: '◇'}
   ];
 
   modeName(key: string): string {
@@ -30,7 +47,6 @@ export class MonitorComponent implements OnInit, OnDestroy {
     else if (key === 'basic') { this.onModeNormal(); }
     else if (key === 'vacation') { this.onModeVacation(); }
     else if (key === 'absent') { this.onModeAbsent(); }
-    else if (key === 'custom') { this.onModeCustom(); }
   }
 
 /*  info = { 'indoorData' : {'temp': 17.3, 'humi' : 52.1, 'humidex' : 17.45360285163524},
@@ -46,6 +62,7 @@ export class MonitorComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.onRefreshInfo();
+    this.loadSchedule();
     const counter = interval( 2000 );
     this.refreshInfoSubscription = counter.subscribe(
       (value) => {
@@ -66,6 +83,10 @@ export class MonitorComponent implements OnInit, OnDestroy {
     this.pelletService.refreshInfo().subscribe(
       (response) =>{
         this.info = response;
+        if (Date.now() - this.lastScheduleRefresh > 15000) {
+          this.lastScheduleRefresh = Date.now();
+          this.loadSchedule();
+        }
         this.cdr.markForCheck();
         console.log(response);
       },
@@ -181,19 +202,6 @@ onModeVacation() {
 
 onModeAbsent() {
   this.pelletService.sendCommand("auto&mode=abs").subscribe(
-    (response) =>{
-      //this.info = response;
-        this.cdr.markForCheck();
-      console.log(response);
-    },
-    (error) => {
-      console.log('Erreur !: '+ error);
-    }
-  );
-  }
-
-onModeCustom() {
-  this.pelletService.sendCommand("auto&mode=custom").subscribe(
     (response) =>{
       //this.info = response;
         this.cdr.markForCheck();
