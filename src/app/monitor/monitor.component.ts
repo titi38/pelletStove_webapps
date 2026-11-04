@@ -16,10 +16,11 @@ export class MonitorComponent implements OnInit, OnDestroy {
   scheduleBusy = false;
   scheduleError = '';
   private lastScheduleRefresh = 0;
-  onPresenceOverride(value: 'arrive' | 'leave' | 'clear') {
+  onPresenceOverride(value: 'arrive' | 'leave') {
     this.scheduleBusy = true;
+    this.scheduleError = '';
     this.pelletService.setPresenceOverride(value).subscribe({
-      next: response => {this.scheduleBusy = false; if (!response.success) this.scheduleError = response.error || 'Refusé'; this.loadSchedule(); this.cdr.markForCheck();},
+      next: response => {this.scheduleBusy = false; if (!response.success) this.scheduleError = response.error || 'Refusé'; this.loadSchedule(); this.onRefreshInfo(); this.cdr.markForCheck();},
       error: () => {this.scheduleBusy = false; this.scheduleError = 'Commande de dérogation indisponible'; this.cdr.markForCheck();}
     });
   }
@@ -28,6 +29,19 @@ export class MonitorComponent implements OnInit, OnDestroy {
       next: s => {this.schedule = s; this.cdr.markForCheck();},
       error: () => {this.schedule = null; this.cdr.markForCheck();}
     });
+  }
+
+  get canLeave(): boolean {
+    return !!this.schedule && this.schedule.autoEnabled === true && (this.schedule.presence || this.schedule.override === 'arrive') &&
+      this.schedule.override !== 'leave' && !this.schedule.alarmLatched;
+  }
+  get canArrive(): boolean {
+    return !!this.schedule && this.schedule.autoEnabled === true && (!this.schedule.presence || this.schedule.override === 'leave') &&
+      this.schedule.override !== 'arrive' && !this.schedule.alarmLatched;
+  }
+  overrideDeadline(): string {
+    const ts = this.schedule?.overrideUntil;
+    return ts ? new Date(ts * 1000).toLocaleString('fr-FR', {weekday:'short', hour:'2-digit', minute:'2-digit'}) : '';
   }
 
   modes = [

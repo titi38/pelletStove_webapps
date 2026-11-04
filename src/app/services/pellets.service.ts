@@ -26,7 +26,7 @@ export class PelletService {
       {params: {_: Date.now().toString(), action: 'save', config: JSON.stringify({days: schedule.days, comfort: schedule.comfort})}});
   }
 
-  setPresenceOverride(value: 'arrive' | 'leave' | 'clear') {
+  setPresenceOverride(value: 'arrive' | 'leave') {
     return this.httpClient.get<{success: boolean; error?: string}>(`${this.apiUrl}/schedule.json`,
       {params: {_: Date.now().toString(), action: 'override', value}});
   }
@@ -41,4 +41,5 @@ export interface PresencePeriod { start: string; end: string; }
 export interface PresenceSchedule {
   days: PresencePeriod[][]; comfort: number;
   override: 'none' | 'arrive' | 'leave'; presence: boolean;
+  overrideUntil?: number; effectivePresence?: boolean; autoEnabled?: boolean; alarmLatched?: boolean; lastAlarm?: string;
 }
