@@ -31,3 +31,23 @@
   .logs-page .controls input { min-width: 100%; }
   .logs-page .table-scroll { max-height: calc(100dvh - 235px); }
 }
+
+/* PelletControl tactile V5.3 : ajustement vertical 1024x600 */
+@media (min-width: 850px) and (max-height: 700px) {
+  /* Raccourcir la page sans réduire la lisibilité des lignes. */
+  .logs-page { padding: 5px 9px 0; }
+  .logs-page .controls { margin: 4px 0 7px; }
+  .logs-page .table-scroll { max-height: calc(100dvh - 191px); }
+  .logs-page header h1 { font-size: 21px; }
+  .logs-page th, .logs-page td { padding-top: 7px; padding-bottom: 7px; }
+}
+
+/* PelletControl V5.3 — panneau Raspberry 1280x720 */
+@media (min-width: 1100px) and (max-width: 1400px) and (min-height: 701px) and (max-height: 780px) {
+  /* La liste seule défile, la page conserve ses filtres visibles. */
+  .logs-page { padding: 6px 10px 0; }
+  .logs-page header h1 { font-size: 23px; }
+  .logs-page .controls { margin: 5px 0 8px; }
+  .logs-page .table-scroll { max-height: calc(100dvh - 215px); }
+  .logs-page th, .logs-page td { padding-top: 8px; padding-bottom: 8px; }
+}

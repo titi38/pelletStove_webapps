@@ -9,6 +9,21 @@ import { interval } from 'rxjs';
   styleUrls: ['./oldstyle.component.scss']
 })
 export class OldstyleComponent implements OnInit, OnDestroy {
+  // PANEL_ORIGIN_LOCK_V54 : état inconnu => boutons désactivés (fail-closed).
+  private autoModeState: string | null = null;
+  get panelCommandsAllowed(): boolean { return this.autoModeState === 'off'; }
+  get panelLockMessage(): string {
+    return this.autoModeState === null
+      ? 'Vérification du mode de régulation…'
+      : 'Passez en mode Manuel depuis le Tableau de bord pour utiliser les touches.';
+  }
+  private refreshPanelMode(): void {
+    this.pelletService.refreshInfo().subscribe({
+      next: info => { this.autoModeState = info?.autoMode?.mode ?? null; this.cdr.markForCheck(); },
+      error: () => { this.autoModeState = null; this.cdr.markForCheck(); }
+    });
+  }
+
 
   constructor(private pelletService: PelletService, private cdr: ChangeDetectorRef) { }
   lcdMessage: string;
@@ -19,10 +34,12 @@ export class OldstyleComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    this.refreshPanelMode();
     const counter = interval( 2000 );
     this.refreshLcdMsgSubscription = counter.subscribe(
       (value) => {
         this.onRefreshLcdMsg();
+        this.refreshPanelMode();
       },
       (error) => { // ERREUR
         console.log ( 'Erreur: ' + error );
@@ -52,6 +69,7 @@ export class OldstyleComponent implements OnInit, OnDestroy {
 
 
   pressButton(button: string){
+    if (!this.panelCommandsAllowed) { return; }
     console.log("pressButton&"+button+"&dur="+this.selectedDurationOption);
     this.pelletService.sendCommand("pressButton&"+button+"&dur="+this.selectedDurationOption).subscribe(
       (response) =>{

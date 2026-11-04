@@ -4,3 +4,25 @@
 @media(max-width:490px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-header{flex-wrap:wrap}}
 
 .kpi .daily{display:block;margin-top:3px;font-size:10px;color:#43865d;font-weight:600}
+
+/* PelletControl tactile V5.3 : ajustement vertical 1024x600 */
+@media (min-width: 850px) and (max-height: 700px) {
+  /* ~15px gagnés au total ; ne pas modifier les axes ou les données. */
+  .stats-header { margin-bottom: 6px; }
+  .kpis { margin-bottom: 5px; }
+  .kpi { padding-top: 5px; padding-bottom: 5px; }
+  .chart-card { margin-bottom: 4px; padding-top: 5px; padding-bottom: 5px; }
+  .atmosphere google-chart { height: 217px; }
+  .consumption google-chart { height: 141px; }
+}
+
+/* PelletControl V5.3 — panneau Raspberry 1280x720 */
+@media (min-width: 1100px) and (max-width: 1400px) and (min-height: 701px) and (max-height: 780px) {
+  /* Éviter une scrollbar extérieure, sans modifier les axes. */
+  .stats-header { margin-bottom: 8px; }
+  .kpis { margin-bottom: 7px; }
+  .kpi { padding-top: 7px; padding-bottom: 7px; }
+  .chart-card { margin-bottom: 5px; padding-top: 7px; padding-bottom: 7px; }
+  .atmosphere google-chart { height: 241px; }
+  .consumption google-chart { height: 151px; }
+}

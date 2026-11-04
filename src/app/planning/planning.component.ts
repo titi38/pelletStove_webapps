@@ -37,6 +37,26 @@ export class PlanningComponent implements OnInit, OnDestroy {
     this.saveTimer = setTimeout(() => { this.saveTimer = undefined; this.flushSave(); }, 650);
     this.cdr.markForCheck();
   }
+
+
+  /** Réglage tactile par pas de 0,5 °C ; même sauvegarde que la saisie directe. */
+/** Réglage tactile par pas de 0,5 °C. */
+adjustComfortStep(direction: -1 | 1): void {
+    if (!this.edited) return;
+
+    const current = Number(this.edited.comfort);
+    if (!Number.isFinite(current)) return;
+
+    const next = Math.max(
+      10,
+      Math.min(25, Math.round(current * 2 + direction) / 2)
+    );
+
+    if (next === current) return;
+
+    this.edited.comfort = next;
+    this.onComfortChange();
+  }
   onComfortChange() { this.changed(); }
   clone(s: PresenceSchedule): PresenceSchedule { return JSON.parse(JSON.stringify(s)); }
   get periods(): PresencePeriod[] { return this.edited?.days[this.selectedDay] ?? []; }

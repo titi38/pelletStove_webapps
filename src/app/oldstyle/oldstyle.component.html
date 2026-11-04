@@ -1,13 +1,15 @@
 <section class="remote-page">
-  <div class="remote-heading"><div><h1>Panneau de commande</h1><p>Contrôle direct · chaque touche est envoyée immédiatement avec la durée choisie</p></div><span class="remote-badge">Mode manuel</span></div>
+  <div class="remote-heading"><div><h1>Panneau de commande</h1><p>Contrôle direct du panneau du poêle</p></div><span class="remote-badge">Mode manuel</span></div>
   <div class="lcd-box"><span class="lcd-label">AFFICHEUR DU POÊLE</span><div class="lcd-screen" aria-live="polite">{{lcdMessage || 'Connexion au poêle…'}}</div></div>
-  <section class="remote-panel"><h2>Boutons de la façade</h2><div class="remote-buttons">
-    <button type="button" (click)="onUp()">↑ <span>Up</span></button>
-    <button type="button" (click)="onDown()">↓ <span>Down</span></button>
-    <button type="button" (click)="onOn()">⏻ <span>On</span></button>
-    <button type="button" class="off" (click)="onOff()">⏻ <span>Off</span></button>
-    <button type="button" (click)="onUpDown()">↕ <span>Up+Down</span></button>
-    <button type="button" (click)="onOnUp()">⏻↑ <span>On+Up</span></button>
+  
+  <p *ngIf="!panelCommandsAllowed" role="status" class="panel-lock-notice" style="margin: .4rem 0; font-weight: 600; color: #8a5010;">🔒 {{ panelLockMessage }}</p>
+<section class="remote-panel"><h2>Boutons de la façade</h2><div class="remote-buttons">
+    <button [disabled]="!panelCommandsAllowed" type="button" (click)="onUp()">↑ <span>Up</span></button>
+    <button [disabled]="!panelCommandsAllowed" type="button" (click)="onDown()">↓ <span>Down</span></button>
+    <button [disabled]="!panelCommandsAllowed" type="button" (click)="onOn()">⏻ <span>On</span></button>
+    <button [disabled]="!panelCommandsAllowed" type="button" class="off" (click)="onOff()">⏻ <span>Off</span></button>
+    <button [disabled]="!panelCommandsAllowed" type="button" (click)="onUpDown()">↕ <span>Up+Down</span></button>
+    <button [disabled]="!panelCommandsAllowed" type="button" (click)="onOnUp()">⏻↑ <span>On+Up</span></button>
   </div></section>
   <section class="duration-panel"><h2>Durée de l'appui</h2><div class="duration-options" role="group" aria-label="Durée de l'appui">
     <label *ngFor="let durationOption of durationOptions; let idx = index" [class.active]="durationOption === selectedDurationOption"><input type="radio" name="duration" [id]="'duration'+idx" [value]="durationOption" [(ngModel)]="selectedDurationOption"><span>{{durationOption}}</span></label>

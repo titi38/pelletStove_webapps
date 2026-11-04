@@ -2,7 +2,7 @@
   <div class="presence-title"><div><h1>Configuration du mode Automatique</h1></div><button type="button" class="ghost" (click)="load()" [disabled]="dirty || saving" title="Actualiser après sauvegarde">↻ Actualiser</button></div>
   <div *ngIf="loading" class="notice">Chargement de la programmation…</div>
   <div *ngIf="error" class="notice bad" role="alert">{{error}}</div>
-  <div *ngIf="message" class="notice good">{{message}}</div>
+  <div class="notice save-status" [class.bad]="!!error" [class.good]="!error" role="status" aria-live="polite">{{ saving ? 'Enregistrement…' : (error ? 'Sauvegarde non effectuée' : (message || 'Sauvegarde automatique')) }}</div>
   <ng-container *ngIf="edited as config">
     <div class="presence-layout">
       <section class="presence-card">
@@ -29,7 +29,11 @@
       <aside class="presence-card settings">
         <h2>Température de consigne</h2>
         <p></p>
-        <label>Consigne <span><input type="number" [(ngModel)]="config.comfort" (ngModelChange)="onComfortChange()" min="10" max="25" step="0.5" /> °C</span></label>
+        <label>Consigne <span><span class="comfort-stepper-v5310" role="group" aria-label="Réglage de la température de consigne">
+          <button type="button" class="comfort-step-btn" (click)="adjustComfortStep(-1)" [disabled]="config.comfort <= 10" aria-label="Diminuer de 0,5 °C">−</button>
+          <input type="number" [(ngModel)]="config.comfort" (ngModelChange)="onComfortChange()" min="10" max="25" step="0.5" />
+          <button type="button" class="comfort-step-btn" (click)="adjustComfortStep(1)" [disabled]="config.comfort >= 25" aria-label="Augmenter de 0,5 °C">+</button>
+        </span> °C</span></label>
         <div class="save-actions" aria-live="polite"><span *ngIf="saving">Enregistrement automatique…</span><span *ngIf="dirty && !saving">Modifications en attente de sauvegarde</span><span *ngIf="!dirty && !saving">Les modifications sont sauvegardées automatiquement.</span></div>
       </aside>
     </div>

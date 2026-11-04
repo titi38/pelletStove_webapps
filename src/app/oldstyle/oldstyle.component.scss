@@ -20,3 +20,41 @@
   .duration-options label { height:56px; }
   .lcd-screen { min-height:72px; }
 }
+
+/* PelletControl: contraste du titre de la télécommande */
+.remote-page { color: #23372f; }
+.remote-page .remote-heading h1 {
+  color: #18382e;
+  opacity: 1;
+  font-weight: 700;
+}
+.remote-page .remote-heading p {
+  color: #45665a;
+  opacity: 1;
+}
+
+/* PelletControl tactile V5.3 : ajustement vertical 1024x600 */
+@media (min-width: 850px) and (max-height: 700px) {
+  /* Plus de place pour l'afficheur LCD et les commandes d'origine. */
+  .remote-page { max-width: none; }
+  .remote-heading { margin-bottom: 13px; }
+  .lcd-box { padding: 18px 22px; margin-bottom: 15px; }
+  .lcd-screen { min-height: 100px; padding: 18px 14px; font-size: 36px; }
+  .remote-panel, .duration-panel { padding: 19px 21px; margin-bottom: 14px; }
+  .remote-panel h2, .duration-panel h2 { margin-bottom: 14px; }
+  .remote-buttons button { min-height: 112px; }
+  .duration-options label { height: 64px; }
+}
+
+/* PelletControl V5.3 — panneau Raspberry 1280x720 */
+@media (min-width: 1100px) and (max-width: 1400px) and (min-height: 701px) and (max-height: 780px) {
+  /* Utiliser la surface disponible pour le panneau d'origine. */
+  .remote-page { max-width: none; }
+  .remote-heading { margin-bottom: 14px; }
+  .lcd-box { padding: 16px 24px; margin-bottom: 12px; }
+  .lcd-screen { min-height: 116px; padding: 18px 16px; font-size: 39px; }
+  .remote-panel, .duration-panel { padding: 16px 22px; margin-bottom: 11px; }
+  .remote-panel h2, .duration-panel h2 { margin-bottom: 17px; }
+  .remote-buttons button { min-height: 117px; }
+  .duration-options label { height: 67px; }
+}
