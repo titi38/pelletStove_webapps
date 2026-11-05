@@ -58,3 +58,29 @@
   .remote-buttons button { min-height: 117px; }
   .duration-options label { height: 67px; }
 }
+
+/* PANEL_LOCK_DISABLED_V541 */
+.remote-buttons button:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+  filter: grayscale(.7);
+  pointer-events: none;
+}
+
+/* PANEL_DURATION_LOCK_V542 */
+.duration-options label.disabled {
+  opacity: .42;
+  color: #69766f;
+  background: #f1f3f2;
+  border-color: #d5dcda;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+.duration-options label.disabled.active {
+  background: #e5e9e7;
+  color: #68756d;
+  border-color: #cbd3ce;
+}
+.duration-options label.disabled input {
+  pointer-events: none;
+}

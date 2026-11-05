@@ -70,6 +70,90 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     interpolateNulls: false
   };
 
+  // PELLET_V56_OVERLAY - diagramme SVG, trois echelles independantes.
+  readonly svgW = 1240;
+  readonly svgH = 430;
+  readonly plotLeft = 68;
+  readonly plotRight = 1082;
+  readonly plotTop = 22;
+  readonly plotBottom = 365;
+  overlayBars: {x: number; y: number; w: number; h: number; tooltip: string}[] = [];
+  overlayLines: {key: string; label: string; color: string; dash: string; paths: string[]}[] = [];
+  overlayTimes: {x: number; label: string}[] = [];
+  overlayTemps: {y: number; label: string}[] = [];
+  overlayHumidity: {y: number; label: string}[] = [];
+  overlayConsumption: {y: number; label: string}[] = [];
+
+  private redrawOverlay(): void {
+    const atmos = this.atmosphereData as Array<[Date, number|null, number|null, number|null, number|null]>;
+    const cons = this.consumptionData as Array<[Date, number|null]>;
+    const plotW = this.plotRight - this.plotLeft;
+    const plotH = this.plotBottom - this.plotTop;
+    // Uses the already computed common 24h domain of the old charts.
+    const axis = this.atmosphereOptions.hAxis?.viewWindow;
+    const end = axis?.max instanceof Date ? axis.max.getTime() : Date.now();
+    const start = axis?.min instanceof Date ? axis.min.getTime() : end - 24*3600000;
+    const x = (t: number) => this.plotLeft + (t - start) / Math.max(1, end-start) * plotW;
+    const finite = (v: number|null|undefined): v is number => typeof v === 'number' && Number.isFinite(v);
+    const tempValues = atmos.flatMap(r => [r[1],r[3]]).filter(finite);
+    let tMin = tempValues.length ? Math.floor((Math.min(...tempValues)-1)/5)*5 : 0;
+    let tMax = tempValues.length ? Math.ceil((Math.max(...tempValues)+1)/5)*5 : 30;
+    if (tMax <= tMin) tMax = tMin + 5;
+    const massValues = cons.map(r=>r[1]).filter(finite).filter(v=>v>=0);
+    const highest = massValues.length ? Math.max(...massValues) : 0;
+    // Clean kg/15min axis without using the humidity or temperature scales.
+    const massMax = Math.max(0.1, Math.ceil(highest / 0.1) * 0.1);
+    const yTemp=(v:number)=>this.plotBottom-(v-tMin)/(tMax-tMin)*plotH;
+    const yHumidity=(v:number)=>this.plotBottom-v/100*plotH;
+    const yMass=(v:number)=>this.plotBottom-Math.max(0,v)/massMax*plotH;
+    const fmt=(n:number)=>n.toFixed(1);
+    this.overlayTemps = Array.from({length:5},(_,i)=>({
+      y: this.plotBottom-i*plotH/4, label:fmt(tMin+(tMax-tMin)*i/4)
+    }));
+    this.overlayHumidity = Array.from({length:5},(_,i)=>({
+      y:this.plotBottom-i*plotH/4,label:String(i*25)
+    }));
+    this.overlayConsumption = Array.from({length:5},(_,i)=>({
+      y:this.plotBottom-i*plotH/4,label:(massMax*i/4).toFixed(2)
+    }));
+    const timeTicks=[] as {x:number;label:string}[];
+    const stepMs=4*3600000;
+    for(let t=Math.ceil(start/stepMs)*stepMs;t<=end;t+=stepMs){
+      const d=new Date(t);
+      timeTicks.push({x:x(t),label:String(d.getHours()).padStart(2,'0')+':00'});
+    }
+    this.overlayTimes=timeTicks;
+    const width=Math.min(9,plotW/96*0.82);
+    this.overlayBars=cons.filter(r=>finite(r[1])&&r[1]>=0).map(r=>{
+      const cx=x(r[0].getTime()+450000);
+      const top=Math.max(this.plotTop, yMass(r[1] as number));
+      const d=r[0];
+      return {x:cx-width/2,y:top,w:width,h:this.plotBottom-top,
+        tooltip:d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})+' · '+
+          (r[1] as number).toFixed(3)+' kg sur le quart d’heure'};
+    });
+    const series:[string,string,number,(v:number)=>number,string][]=[
+      ['Temp. intérieure','#e97822',1,yTemp,''],
+      ['Temp. extérieure','#e97822',3,yTemp,'7 5'],
+      ['Humidité intérieure','#1875cf',2,yHumidity,''],
+      ['Humidité extérieure','#1875cf',4,yHumidity,'7 5']
+    ];
+    this.overlayLines=series.map(([label,color,col,project,dash])=>{
+      let segment:string[]=[];
+      const paths:string[]=[];
+      const flush=()=>{if(segment.length>0){paths.push(segment.join(' '));segment=[];}};
+      atmos.forEach(r=>{
+        const v=r[col] as number|null;
+        if(!finite(v)){flush();return;}
+        const point=x(r[0].getTime()+450000).toFixed(2)+','+project(v).toFixed(2);
+        segment.push((segment.length?'L':'M')+point);
+      });
+      flush();
+      return {key:label,label,color,dash,paths};
+    });
+  }
+
+
   constructor(private pellets: PelletService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
@@ -122,6 +206,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
         if (validPartial) {
           this.consumptionData.push([currentQuarter, partialMass]);
         }
+        this.redrawOverlay();
         this.count = rows.length;
         this.avgIndoorTemp = this.mean(rows.map(p => p.indoorTemp));
         this.avgIndoorHumidity = this.mean(rows.map(p => p.indoorHumidity));

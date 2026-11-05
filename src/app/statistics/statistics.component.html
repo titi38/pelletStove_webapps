@@ -14,17 +14,55 @@
       <div class="kpi"><span>{{dailyConsumptionIsEstimate ? "Conso. estimée / jour" : "Conso. moyenne / jour"}}</span><strong>{{avgDailyConsumption === null ? '—' : (avgDailyConsumption | number:'1.1-1')}}<small> kg/jour</small></strong>
         </div>
     </div>
-    <article class="chart-card atmosphere">
-      <h2>Température et hygrométrie</h2>
-      <google-chart type="LineChart" [data]="atmosphereData"
-        [columnNames]="['Heure', 'Temp. intérieure (°C)', 'Humidité intérieure (%)', 'Temp. extérieure (°C)', 'Humidité extérieure (%)']"
-        [options]="atmosphereOptions" [dynamicResize]="true"></google-chart>
-    </article>
-    <article class="chart-card consumption">
-      <h2>Consommation de granulés</h2>
-      <google-chart type="ColumnChart" [data]="consumptionData"
-        [columnNames]="['Heure', 'Consommation (kg / 15 min)']"
-        [options]="consumptionOptions" [dynamicResize]="true"></google-chart>
+    <article class="chart-card stats-overview">
+      <h2>Température, humidité et consommation de granulés</h2>
+      <div class="overlay-legend" aria-label="Légende du graphique">
+        <span class="legend-temp">Temp. intérieure</span>
+        <span class="legend-temp dashed">Temp. extérieure</span>
+        <span class="legend-humi">Humidité intérieure</span>
+        <span class="legend-humi dashed">Humidité extérieure</span>
+        <span class="legend-consumption">Granulés (kg / 15 min)</span>
+      </div>
+      <svg class="overlay-graph" viewBox="0 0 1240 430" preserveAspectRatio="none"
+           role="img" aria-label="Historique des dernières 24 heures : températures, humidité et granulés consommés">
+        <rect x="68" y="22" width="1014" height="343" fill="#fbfdfb"/>
+        <g class="overlay-grid">
+          <g *ngFor="let tick of overlayHumidity">
+            <line x1="68" [attr.y1]="tick.y" x2="1082" [attr.y2]="tick.y"/>
+          </g>
+          <g *ngFor="let tick of overlayTimes">
+            <line [attr.x1]="tick.x" y1="22" [attr.x2]="tick.x" y2="365"/>
+          </g>
+        </g>
+        <g class="overlay-consumption-bars">
+          <rect *ngFor="let b of overlayBars" [attr.x]="b.x" [attr.y]="b.y"
+                [attr.width]="b.w" [attr.height]="b.h">
+            <title>{{b.tooltip}}</title>
+          </rect>
+        </g>
+        <g *ngFor="let line of overlayLines">
+          <path *ngFor="let path of line.paths" [attr.d]="path" fill="none"
+                [attr.stroke]="line.color" [attr.stroke-dasharray]="line.dash || null"
+                stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+        </g>
+        <g class="overlay-axis-labels">
+          <text x="68" y="14" text-anchor="start" fill="#b96326">°C</text>
+          <text x="1108" y="14" text-anchor="middle" fill="#1875cf">%</text>
+          <text x="1193" y="14" text-anchor="middle" fill="#43865d">kg / 15 min</text>
+          <g *ngFor="let tick of overlayTemps">
+            <text x="57" [attr.y]="tick.y+4" text-anchor="end" fill="#b96326">{{tick.label}}</text>
+          </g>
+          <g *ngFor="let tick of overlayHumidity">
+            <text x="1094" [attr.y]="tick.y+4" text-anchor="start" fill="#1875cf">{{tick.label}}</text>
+          </g>
+          <g *ngFor="let tick of overlayConsumption">
+            <text x="1170" [attr.y]="tick.y+4" text-anchor="start" fill="#43865d">{{tick.label}}</text>
+          </g>
+          <g *ngFor="let tick of overlayTimes">
+            <text [attr.x]="tick.x" y="390" text-anchor="middle" fill="#667c72">{{tick.label}}</text>
+          </g>
+        </g>
+      </svg>
     </article>
   </ng-container>
   <div class="notice" *ngIf="!loading && !error && !count">Pas encore de mesures disponibles.</div>

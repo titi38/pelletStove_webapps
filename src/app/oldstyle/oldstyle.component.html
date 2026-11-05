@@ -12,6 +12,6 @@
     <button [disabled]="!panelCommandsAllowed" type="button" (click)="onOnUp()">⏻↑ <span>On+Up</span></button>
   </div></section>
   <section class="duration-panel"><h2>Durée de l'appui</h2><div class="duration-options" role="group" aria-label="Durée de l'appui">
-    <label *ngFor="let durationOption of durationOptions; let idx = index" [class.active]="durationOption === selectedDurationOption"><input type="radio" name="duration" [id]="'duration'+idx" [value]="durationOption" [(ngModel)]="selectedDurationOption"><span>{{durationOption}}</span></label>
+    <label *ngFor="let durationOption of durationOptions; let idx = index" [class.active]="durationOption === selectedDurationOption" [class.disabled]="!panelCommandsAllowed"><input type="radio" name="duration" [id]="'duration'+idx" [value]="durationOption" [(ngModel)]="selectedDurationOption" [disabled]="!panelCommandsAllowed"><span>{{durationOption}}</span></label>
   </div></section>
 </section>

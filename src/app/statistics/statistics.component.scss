@@ -26,3 +26,27 @@
   .atmosphere google-chart { height: 241px; }
   .consumption google-chart { height: 151px; }
 }
+
+/* PELLET_V56_OVERLAY : un seul graphique sur toute la hauteur disponible. */
+.stats-page .stats-overview { padding: 9px 12px 5px; margin-bottom: 0; }
+.stats-page .stats-overview h2 { font-size: 16px; margin: 0 0 4px; }
+.stats-page .overlay-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px;
+  margin: 3px 0 1px; color: #3b534b; font-size: 11px; }
+.stats-page .overlay-legend span::before { content: ''; display: inline-block; width: 16px;
+  border-top: 3px solid; vertical-align: middle; margin-right: 5px; }
+.stats-page .overlay-legend .legend-temp::before { border-color: #e97822; }
+.stats-page .overlay-legend .legend-humi::before { border-color: #1875cf; }
+.stats-page .overlay-legend .dashed::before { border-top-style: dashed; }
+.stats-page .overlay-legend .legend-consumption::before { background: rgba(99,174,120,.43);
+  border: 0; height: 9px; vertical-align: -1px; }
+.stats-page .overlay-graph { display: block; width: 100%;
+  height: clamp(290px, calc(100dvh - 270px), 530px); overflow: visible; }
+.stats-page .overlay-grid line { stroke: #e4ede7; stroke-width: 1; }
+.stats-page .overlay-grid g:nth-child(odd) line { stroke-opacity: .85; }
+.stats-page .overlay-consumption-bars rect { fill: #64b97c; fill-opacity: .35; }
+.stats-page .overlay-consumption-bars rect:hover { fill-opacity: .7; }
+.stats-page .overlay-axis-labels text { font: 14px system-ui, sans-serif; }
+@media (max-width:800px) {
+  .stats-page .overlay-graph { height: 380px; }
+  .stats-page .overlay-axis-labels text { font-size: 15px; }
+}
