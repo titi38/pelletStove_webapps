@@ -128,3 +128,31 @@
   .settings .comfort-stepper-v5310 .comfort-step-btn { flex-basis: 40px; width: 40px; }
   .settings .comfort-stepper-v5310 input[type="number"] { flex-basis: 80px; width: 80px; min-width: 80px; max-width: 80px; }
 }
+
+/* V5.5 : trois vues compactes, grands controles tactiles, aucun ajout de min-height */
+.v55-mode-tabs {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:9px 0 15px}
+.v55-mode-tabs button {border:1px solid #afccc4;background:#edf5f2;color:#2d665b;border-radius:11px;min-height:48px;font-weight:750;cursor:pointer}
+.v55-mode-tabs button.active {background:#286d62;color:#fff}
+.v55-settings-section {border-top:1px solid #e1ece8;padding-top:13px;margin-top:13px}
+.v55-heading {display:flex;justify-content:space-between;align-items:center;gap:12px}
+.v55-heading h2 {margin:0!important}
+.v55-heading label {white-space:nowrap;font-size:14px}
+.v55-heading input[type=checkbox] {width:20px;height:20px;vertical-align:middle;accent-color:#286d62}
+.v55-setting-row {display:flex;flex-wrap:wrap;align-items:end;gap:18px;margin-top:13px}
+.v55-setting-row>label {display:flex;flex-direction:column;align-items:flex-start;gap:7px;font-weight:700}
+.v55-step {display:flex;align-items:center;gap:8px;white-space:nowrap}
+.v55-step button {width:44px;height:44px;border:1px solid #a4c6bd;border-radius:9px;background:#e9f5f0;color:#215d50;font-size:24px;font-weight:750;cursor:pointer}
+.v55-step strong {min-width:72px;text-align:center;font-size:18px}
+.v55-setting-row input[type=time],.v55-setting-row select {border:1px solid #ccd9dc;border-radius:9px;background:#fff;padding:10px;font-size:17px;min-height:44px}
+.v55-single-card {max-width:960px}
+@media(min-width:1100px) and (max-width:1400px) and (min-height:701px) and (max-height:780px) {
+ .presence-page .presence-card {padding:17px 19px}
+ .presence-page .day-tabs button {min-height:50px}
+ .presence-page .period {min-height:51px;padding:6px 10px}
+ .presence-page .add {min-height:45px;margin-top:9px}
+ .presence-page .copy {min-height:42px;margin-top:8px}
+ .presence-page .day-tabs {margin:9px 0 11px}
+ .presence-page .settings>label {margin:10px 0}
+ .presence-page .presence-title {margin-bottom:8px}
+ .presence-page .v55-mode-tabs {margin:5px 0 10px}
+}

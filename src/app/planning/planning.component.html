@@ -1,10 +1,15 @@
 <div class="presence-page">
-  <div class="presence-title"><div><h1>Configuration du mode Automatique</h1></div><button type="button" class="ghost" (click)="load()" [disabled]="dirty || saving" title="Actualiser après sauvegarde">↻ Actualiser</button></div>
+  <div class="presence-title"><div><h1>Configuration du chauffage</h1></div><button type="button" class="ghost" (click)="load()" [disabled]="dirty || saving" title="Actualiser après sauvegarde">↻ Actualiser</button></div>
   <div *ngIf="loading" class="notice">Chargement de la programmation…</div>
   <div *ngIf="error" class="notice bad" role="alert">{{error}}</div>
   <div class="notice save-status" [class.bad]="!!error" [class.good]="!error" role="status" aria-live="polite">{{ saving ? 'Enregistrement…' : (error ? 'Sauvegarde non effectuée' : (message || 'Sauvegarde automatique')) }}</div>
+  <nav class="v55-mode-tabs" aria-label="Mode à configurer">
+    <button type="button" [class.active]="selectedMode==='auto'" (click)="selectedMode='auto'">Automatique</button>
+    <button type="button" [class.active]="selectedMode==='presence'" (click)="selectedMode='presence'">Présence</button>
+    <button type="button" [class.active]="selectedMode==='absence'" (click)="selectedMode='absence'">Absence</button>
+  </nav>
   <ng-container *ngIf="edited as config">
-    <div class="presence-layout">
+    <div class="presence-layout" *ngIf="selectedMode==='auto'">
       <section class="presence-card">
         <div class="card-title"><h2>Horaires de fonctionnement</h2></div>
         <div class="day-tabs"><button *ngFor="let d of weekdays; let i=index" [class.active]="selectedDay===i" (click)="selectedDay=i;editing=-1;error=''">{{d.slice(0,3)}}</button></div>
@@ -34,8 +39,37 @@
           <input type="number" [(ngModel)]="config.comfort" (ngModelChange)="onComfortChange()" min="10" max="25" step="0.5" />
           <button type="button" class="comfort-step-btn" (click)="adjustComfortStep(1)" [disabled]="config.comfort >= 25" aria-label="Augmenter de 0,5 °C">+</button>
         </span> °C</span></label>
-        <div class="save-actions" aria-live="polite"><span *ngIf="saving">Enregistrement automatique…</span><span *ngIf="dirty && !saving">Modifications en attente de sauvegarde</span><span *ngIf="!dirty && !saving">Les modifications sont sauvegardées automatiquement.</span></div>
+        <section class="v55-settings-section">
+          <div class="v55-heading"><h2>Démarrage anticipé</h2><label><input type="checkbox" [(ngModel)]="config.anticipation.enabled" (ngModelChange)="onSettingsChange()"> Activer</label></div>
+          <div class="v55-setting-row" *ngIf="config.anticipation.enabled">
+            <label>Sous <span class="v55-step"><button type="button" (click)="changeSetting('anticipationBelow',-1)">−</button><strong>{{config.anticipation.below | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('anticipationBelow',1)">+</button></span></label>
+            <label>Avant la période <select [(ngModel)]="config.anticipation.minutes" (ngModelChange)="onSettingsChange()"><option [ngValue]="15">15 min</option><option [ngValue]="30">30 min</option><option [ngValue]="45">45 min</option><option [ngValue]="60">60 min</option><option [ngValue]="90">90 min</option><option [ngValue]="120">120 min</option></select></label>
+          </div>
+        </section>
+        <section class="v55-settings-section">
+          <div class="v55-heading"><h2>Protection grand froid</h2><label><input type="checkbox" [(ngModel)]="config.automaticFrost.enabled" (ngModelChange)="onSettingsChange()"> Activer</label></div>
+          <div class="v55-setting-row" *ngIf="config.automaticFrost.enabled">
+            <label>Démarrer sous <span class="v55-step"><button type="button" (click)="changeSetting('autoFrostStart',-1)">−</button><strong>{{config.automaticFrost.startBelow | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('autoFrostStart',1)">+</button></span></label>
+            <label>Arrêter à <span class="v55-step"><button type="button" (click)="changeSetting('autoFrostStop',-1)">−</button><strong>{{config.automaticFrost.stopAt | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('autoFrostStop',1)">+</button></span></label>
+          </div>
+        </section>
       </aside>
     </div>
+    <section class="presence-card v55-single-card" *ngIf="selectedMode==='presence'">
+      <h2>Mode Présence</h2>
+      <div class="v55-setting-row">
+        <label>Début <input type="time" [(ngModel)]="config.presenceMode.start" (ngModelChange)="onSettingsChange()"></label>
+        <label>Fin <input type="time" [(ngModel)]="config.presenceMode.end" (ngModelChange)="onSettingsChange()"></label>
+        <label>Consigne <span class="v55-step"><button type="button" (click)="changeSetting('presenceComfort',-1)">−</button><strong>{{config.presenceMode.comfort | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('presenceComfort',1)">+</button></span></label>
+      </div>
+      <p>En dehors de cette plage quotidienne, le chauffage est arrêté.</p>
+    </section>
+    <section class="presence-card v55-single-card" *ngIf="selectedMode==='absence'">
+      <div class="v55-heading"><h2>Mode Absence</h2><label><input type="checkbox" [(ngModel)]="config.absenceFrost.enabled" (ngModelChange)="onSettingsChange()"> Protection grand froid</label></div>
+      <div class="v55-setting-row" *ngIf="config.absenceFrost.enabled">
+        <label>Démarrer sous <span class="v55-step"><button type="button" (click)="changeSetting('absenceFrostStart',-1)">−</button><strong>{{config.absenceFrost.startBelow | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('absenceFrostStart',1)">+</button></span></label>
+        <label>Arrêter à <span class="v55-step"><button type="button" (click)="changeSetting('absenceFrostStop',-1)">−</button><strong>{{config.absenceFrost.stopAt | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('absenceFrostStop',1)">+</button></span></label>
+      </div>
+    </section>
   </ng-container>
 </div>

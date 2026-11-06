@@ -23,7 +23,7 @@ export class PelletService {
 
   saveSchedule(schedule: PresenceSchedule) {
     return this.httpClient.get<{success: boolean; error?: string}>(`${this.apiUrl}/schedule.json`,
-      {params: {_: Date.now().toString(), action: 'save', config: JSON.stringify({days: schedule.days, comfort: schedule.comfort})}});
+      {params: {_: Date.now().toString(), action: 'save', config: JSON.stringify({days: schedule.days, comfort: schedule.comfort, anticipation: schedule.anticipation, automaticFrost: schedule.automaticFrost, presenceMode: schedule.presenceMode, absenceFrost: schedule.absenceFrost})}});
   }
 
   setPresenceOverride(value: 'arrive' | 'leave') {
@@ -38,7 +38,14 @@ export class PelletService {
 }
 
 export interface PresencePeriod { start: string; end: string; }
+export interface FrostSettings { enabled: boolean; startBelow: number; stopAt: number; }
+export interface AnticipationSettings { enabled: boolean; below: number; minutes: number; }
+export interface PresenceModeSettings { start: string; end: string; comfort: number; }
 export interface PresenceSchedule {
+  anticipation: AnticipationSettings;
+  automaticFrost: FrostSettings;
+  presenceMode: PresenceModeSettings;
+  absenceFrost: FrostSettings;
   days: PresencePeriod[][]; comfort: number;
   override: 'none' | 'arrive' | 'leave'; presence: boolean;
   overrideUntil?: number; effectivePresence?: boolean; autoEnabled?: boolean; alarmLatched?: boolean; lastAlarm?: string;

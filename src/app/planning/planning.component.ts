@@ -5,6 +5,7 @@ import { PelletService, PresencePeriod, PresenceSchedule } from '../services/pel
 export class PlanningComponent implements OnInit, OnDestroy {
   readonly weekdays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
   selectedDay = 0;
+  selectedMode: 'auto' | 'presence' | 'absence' = 'auto';
   schedule: PresenceSchedule | null = null;
   edited: PresenceSchedule | null = null;
   editing = -1;
@@ -58,6 +59,46 @@ adjustComfortStep(direction: -1 | 1): void {
     this.onComfortChange();
   }
   onComfortChange() { this.changed(); }
+  onSettingsChange() { this.changed(); }
+  private adjust(value: number, direction: -1 | 1, low: number, high: number): number {
+    return Math.max(low, Math.min(high, Math.round(value * 2 + direction) / 2));
+  }
+  changeSetting(field: 'anticipationBelow' | 'autoFrostStart' | 'autoFrostStop' |
+      'presenceComfort' | 'absenceFrostStart' | 'absenceFrostStop', direction: -1 | 1): void {
+    if (!this.edited) return;
+    const c = this.edited;
+    const a = c.automaticFrost, f = c.absenceFrost;
+    switch(field) {
+      case 'anticipationBelow': c.anticipation.below = this.adjust(c.anticipation.below,direction,10,25); break;
+      case 'autoFrostStart': a.startBelow = this.adjust(a.startBelow,direction,5,a.stopAt-0.5); break;
+      case 'autoFrostStop': a.stopAt = this.adjust(a.stopAt,direction,a.startBelow+0.5,25); break;
+      case 'presenceComfort': c.presenceMode.comfort = this.adjust(c.presenceMode.comfort,direction,10,25); break;
+      case 'absenceFrostStart': f.startBelow = this.adjust(f.startBelow,direction,5,f.stopAt-0.5); break;
+      case 'absenceFrostStop': f.stopAt = this.adjust(f.stopAt,direction,f.startBelow+0.5,25); break;
+    }
+    this.changed();
+  }
+  private ensureSettings(s: PresenceSchedule): PresenceSchedule {
+    return {
+      ...s,
+      anticipation: s.anticipation ?? {enabled:false, below:17, minutes:60},
+      automaticFrost: s.automaticFrost ?? {enabled:false, startBelow:15, stopAt:17},
+      presenceMode: s.presenceMode ?? {start:'07:00', end:'23:00', comfort:19.5},
+      absenceFrost: s.absenceFrost ?? {enabled:false, startBelow:15, stopAt:17}
+    };
+  }
+  private validSettings(s: PresenceSchedule): boolean {
+    const half = (n:number) => Number.isFinite(n) && Math.abs(n*2-Math.round(n*2))<1e-6;
+    const frost = (f:{startBelow:number;stopAt:number}) =>
+      half(f.startBelow) && half(f.stopAt) && f.startBelow >= 5 && f.stopAt <=25 && f.startBelow<f.stopAt;
+    return half(s.comfort) && half(s.anticipation.below) &&
+      s.anticipation.below>=10 && s.anticipation.below<=25 &&
+      Number.isInteger(s.anticipation.minutes) && s.anticipation.minutes>=0 && s.anticipation.minutes<=180 &&
+      frost(s.automaticFrost) && frost(s.absenceFrost) && half(s.presenceMode.comfort) &&
+      s.presenceMode.comfort>=10 && s.presenceMode.comfort<=25 &&
+      this.validTime(s.presenceMode.start) && this.validTime(s.presenceMode.end) &&
+      s.presenceMode.start !== s.presenceMode.end;
+  }
   clone(s: PresenceSchedule): PresenceSchedule { return JSON.parse(JSON.stringify(s)); }
   get periods(): PresencePeriod[] { return this.edited?.days[this.selectedDay] ?? []; }
   load() {
@@ -70,7 +111,7 @@ adjustComfortStep(direction: -1 | 1): void {
     this.loading = true; this.error = '';
     this.api.refreshSchedule().subscribe({
       next: s => {
-        this.schedule = this.clone(s); this.edited = this.clone(s);
+        this.schedule = this.ensureSettings(this.clone(s)); this.edited = this.clone(this.schedule);
         this.loading = false; this.dirty = false; this.message = ''; this.revision = 0; this.persistedRevision = 0; this.cdr.markForCheck();
       },
       error: () => {
@@ -119,6 +160,11 @@ adjustComfortStep(direction: -1 | 1): void {
     const comfort = Number(this.edited.comfort);
     if (!Number.isFinite(comfort) || comfort < 10 || comfort > 25) {
       this.error = 'Consigne invalide (10 à 25 °C). Modifications non enregistrées.';
+      this.cdr.markForCheck();
+      return;
+    }
+    if (!this.validSettings(this.edited)) {
+      this.error = 'Paramètres invalides : vérifier les seuils, les horaires et les pas de 0,5 °C.';
       this.cdr.markForCheck();
       return;
     }
