@@ -33,7 +33,6 @@
       </section>
       <aside class="presence-card settings">
         <h2>Température de consigne</h2>
-        <p></p>
         <label>Consigne <span><span class="comfort-stepper-v5310" role="group" aria-label="Réglage de la température de consigne">
           <button type="button" class="comfort-step-btn" (click)="adjustComfortStep(-1)" [disabled]="config.comfort <= 10" aria-label="Diminuer de 0,5 °C">−</button>
           <input type="number" [(ngModel)]="config.comfort" (ngModelChange)="onComfortChange()" min="10" max="25" step="0.5" />
@@ -55,20 +54,58 @@
         </section>
       </aside>
     </div>
-    <section class="presence-card v55-single-card" *ngIf="selectedMode==='presence'">
-      <h2>Mode Présence</h2>
-      <div class="v55-setting-row">
-        <label>Début <input type="time" [(ngModel)]="config.presenceMode.start" (ngModelChange)="onSettingsChange()"></label>
-        <label>Fin <input type="time" [(ngModel)]="config.presenceMode.end" (ngModelChange)="onSettingsChange()"></label>
-        <label>Consigne <span class="v55-step"><button type="button" (click)="changeSetting('presenceComfort',-1)">−</button><strong>{{config.presenceMode.comfort | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('presenceComfort',1)">+</button></span></label>
+    <section class="presence-card v55-single-card v55-mode-panel" *ngIf="selectedMode==='presence'">
+      <div class="v55-panel-heading">
+        <h2>Mode Présence</h2>
+        <span class="v55-mode-description">Horaires quotidiens et température de confort</span>
       </div>
-      <p>En dehors de cette plage quotidienne, le chauffage est arrêté.</p>
+      <div class="v55-setting-grid v55-presence-grid">
+        <div class="v55-setting-box v55-hours-box">
+          <h3>Plage de fonctionnement</h3>
+          <div class="v55-setting-row">
+            <label>Début <input type="time" [(ngModel)]="config.presenceMode.start" (ngModelChange)="onSettingsChange()"></label>
+            <label>Fin <input type="time" [(ngModel)]="config.presenceMode.end" (ngModelChange)="onSettingsChange()"></label>
+          </div>
+        </div>
+        <div class="v55-setting-box">
+          <h3>Température de consigne</h3>
+          <div class="v55-setting-row">
+            <div class="v55-step" role="group" aria-label="Consigne du mode Présence">
+              <button type="button" (click)="changeSetting('presenceComfort',-1)" [disabled]="config.presenceMode.comfort <= 10" aria-label="Diminuer la consigne de 0,5 °C">−</button>
+              <strong>{{config.presenceMode.comfort | number:'1.1-1'}} °C</strong>
+              <button type="button" (click)="changeSetting('presenceComfort',1)" [disabled]="config.presenceMode.comfort >= 25" aria-label="Augmenter la consigne de 0,5 °C">+</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="v55-help">En dehors de cette plage quotidienne, le chauffage est arrêté.</p>
     </section>
-    <section class="presence-card v55-single-card" *ngIf="selectedMode==='absence'">
-      <div class="v55-heading"><h2>Mode Absence</h2><label><input type="checkbox" [(ngModel)]="config.absenceFrost.enabled" (ngModelChange)="onSettingsChange()"> Protection grand froid</label></div>
-      <div class="v55-setting-row" *ngIf="config.absenceFrost.enabled">
-        <label>Démarrer sous <span class="v55-step"><button type="button" (click)="changeSetting('absenceFrostStart',-1)">−</button><strong>{{config.absenceFrost.startBelow | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('absenceFrostStart',1)">+</button></span></label>
-        <label>Arrêter à <span class="v55-step"><button type="button" (click)="changeSetting('absenceFrostStop',-1)">−</button><strong>{{config.absenceFrost.stopAt | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('absenceFrostStop',1)">+</button></span></label>
+    <section class="presence-card v55-single-card v55-mode-panel" *ngIf="selectedMode==='absence'">
+      <div class="v55-panel-heading">
+        <h2>Mode Absence</h2>
+        <label class="v55-switch"><input type="checkbox" [(ngModel)]="config.absenceFrost.enabled" (ngModelChange)="onSettingsChange()"> Protection grand froid</label>
+      </div>
+      <div class="v55-setting-grid v55-absence-grid" [class.v55-inactive]="!config.absenceFrost.enabled">
+        <div class="v55-setting-box">
+          <h3>Démarrer sous</h3>
+          <div class="v55-step" role="group" aria-label="Seuil de démarrage en absence">
+            <button type="button" (click)="changeSetting('absenceFrostStart',-1)" [disabled]="!config.absenceFrost.enabled || config.absenceFrost.startBelow <= 5" aria-label="Diminuer le seuil de démarrage de 0,5 °C">−</button>
+            <strong>{{config.absenceFrost.startBelow | number:'1.1-1'}} °C</strong>
+            <button type="button" (click)="changeSetting('absenceFrostStart',1)" [disabled]="!config.absenceFrost.enabled || config.absenceFrost.startBelow >= config.absenceFrost.stopAt - 0.5" aria-label="Augmenter le seuil de démarrage de 0,5 °C">+</button>
+          </div>
+        </div>
+        <div class="v55-setting-box">
+          <h3>Arrêter à</h3>
+          <div class="v55-step" role="group" aria-label="Seuil d'arrêt en absence">
+            <button type="button" (click)="changeSetting('absenceFrostStop',-1)" [disabled]="!config.absenceFrost.enabled || config.absenceFrost.stopAt <= config.absenceFrost.startBelow + 0.5" aria-label="Diminuer le seuil d'arrêt de 0,5 °C">−</button>
+            <strong>{{config.absenceFrost.stopAt | number:'1.1-1'}} °C</strong>
+            <button type="button" (click)="changeSetting('absenceFrostStop',1)" [disabled]="!config.absenceFrost.enabled || config.absenceFrost.stopAt >= 25" aria-label="Augmenter le seuil d'arrêt de 0,5 °C">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="v55-absence-footer">
+        <p class="v55-help">Hors programmation : le poêle chauffe uniquement pour maintenir la température minimale.</p>
+        <button type="button" class="v55-recommended" (click)="restoreAbsenceDefaults()" *ngIf="!config.absenceFrost.enabled || config.absenceFrost.startBelow !== 15 || config.absenceFrost.stopAt !== 16">Réglages conseillés : 15 → 16 °C</button>
       </div>
     </section>
   </ng-container>

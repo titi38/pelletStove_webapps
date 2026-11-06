@@ -78,13 +78,23 @@ adjustComfortStep(direction: -1 | 1): void {
     }
     this.changed();
   }
+  /** Appliquer explicitement les valeurs conseillées, sans écraser une configuration existante au chargement. */
+  restoreAbsenceDefaults(): void {
+    if (!this.edited) return;
+    const f = this.edited.absenceFrost;
+    if (f.enabled && f.startBelow === 15 && f.stopAt === 16) return;
+    f.enabled = true;
+    f.startBelow = 15;
+    f.stopAt = 16;
+    this.changed();
+  }
   private ensureSettings(s: PresenceSchedule): PresenceSchedule {
     return {
       ...s,
       anticipation: s.anticipation ?? {enabled:false, below:17, minutes:60},
       automaticFrost: s.automaticFrost ?? {enabled:false, startBelow:15, stopAt:17},
       presenceMode: s.presenceMode ?? {start:'07:00', end:'23:00', comfort:19.5},
-      absenceFrost: s.absenceFrost ?? {enabled:false, startBelow:15, stopAt:17}
+      absenceFrost: s.absenceFrost ?? {enabled:true, startBelow:15, stopAt:16}
     };
   }
   private validSettings(s: PresenceSchedule): boolean {
