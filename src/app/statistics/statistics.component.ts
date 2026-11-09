@@ -101,7 +101,13 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     const scheduleComfort = this.schedule && Number.isFinite(this.schedule.comfort)
       ? this.schedule.comfort : null;
     const tempValues = atmos.flatMap(r => [r[1],r[3]]).filter(finite);
-    if (scheduleComfort !== null) tempValues.push(scheduleComfort);
+    // La consigne est programmée en température corrigée, mais le graphique
+    // affiche les températures mesurées : convertir le seuil avec l'humidité.
+    if (scheduleComfort !== null) {
+      for (const r of atmos) {
+        if (finite(r[2])) tempValues.push(scheduleComfort + r[2] / 75.0);
+      }
+    }
     let tMin = tempValues.length ? Math.floor((Math.min(...tempValues)-1)/5)*5 : 0;
     let tMax = tempValues.length ? Math.ceil((Math.max(...tempValues)+1)/5)*5 : 30;
     if (tMax <= tMin) tMax = tMin + 5;
@@ -166,9 +172,29 @@ export class StatisticsComponent implements OnInit, OnDestroy {
         if (prev && segment.from <= prev.to) prev.to = Math.max(prev.to,segment.to);
         else merged.push({...segment});
       }
-      const y = yTemp(scheduleComfort).toFixed(2);
-      this.scheduledSetpointPaths = merged.map(s=>
-        `M${x(s.from).toFixed(2)},${y} L${x(s.to).toFixed(2)},${y}`);
+      // Seuil reel en degres mesures : consigne corrigee + humidite / 75.
+      // Une courbe par plage programmee, sans relier les trous de mesures.
+      const samples = atmos.map(r => ({
+        time: r[0].getTime() + 450000, // centre du quart d'heure, comme les autres courbes
+        humidity: r[2]
+      }));
+      for (const period of merged) {
+        let points: string[] = [];
+        const flush = () => {
+          if (points.length > 1) this.scheduledSetpointPaths.push(points.join(' '));
+          points = [];
+        };
+        for (const sample of samples) {
+          if (sample.time < period.from || sample.time > period.to || !finite(sample.humidity)) {
+            flush();
+            continue;
+          }
+          const threshold = scheduleComfort + sample.humidity / 75.0;
+          const point = `${x(sample.time).toFixed(2)},${yTemp(threshold).toFixed(2)}`;
+          points.push(`${points.length ? 'L' : 'M'}${point}`);
+        }
+        flush();
+      }
     }
     const width=Math.min(9,plotW/96*0.82);
     this.overlayBars=cons.filter(r=>finite(r[1])&&r[1]>=0).map(r=>{
@@ -180,7 +206,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
           (r[1] as number).toFixed(3)+' kg sur le quart d’heure'};
     });
     const series:[string,string,number,(v:number)=>number,string][]=[
-      ['Temp. intérieure corrigée','#e97822',1,yTemp,''],
+      ['Temp. intérieure','#e97822',1,yTemp,''],
       ['Temp. extérieure','#e97822',3,yTemp,'7 5'],
       ['Humidité intérieure','#1875cf',2,yHumidity,''],
       ['Humidité extérieure','#1875cf',4,yHumidity,'7 5']
@@ -247,13 +273,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
             consumption: this.value(values, 5)
           };
         });
-        // Même température corrigée que dans AutoMode.cc : temp - humi / 75.
-        // La consigne est déjà exprimée sur cette échelle : ne pas la corriger.
-        const correctedIndoorTemp = (p: Slot): Measurement =>
-          p.indoorTemp !== null && p.indoorHumidity !== null
-            ? p.indoorTemp - p.indoorHumidity / 75.0
-            : null;
-        this.atmosphereData = rows.map(p => [p.date, correctedIndoorTemp(p), p.indoorHumidity, p.outdoorTemp, p.outdoorHumidity]);
+        this.atmosphereData = rows.map(p => [p.date, p.indoorTemp, p.indoorHumidity, p.outdoorTemp, p.outdoorHumidity]);
         this.consumptionData = rows.map(p => [p.date, p.consumption]);
         // Include the current partial quarter, when backend exposes it.
         // The unfinished slot contains the mass accumulated so far (kg).
@@ -265,7 +285,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
         }
         this.redrawOverlay();
         this.count = rows.length;
-        this.avgIndoorTemp = this.mean(rows.map(p => correctedIndoorTemp(p)));
+        this.avgIndoorTemp = this.mean(rows.map(p => p.indoorTemp));
         this.avgIndoorHumidity = this.mean(rows.map(p => p.indoorHumidity));
         this.avgOutdoorTemp = this.mean(rows.map(p => p.outdoorTemp));
         this.avgOutdoorHumidity = this.mean(rows.map(p => p.outdoorHumidity));

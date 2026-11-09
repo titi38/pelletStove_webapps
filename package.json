@@ -1,6 +1,6 @@
 {
   "name": "pellet-control",
-  "version": "5.6.5",
+  "version": "5.6.6",
   "private": true,
   "scripts": {
     "start": "ng serve --host 0.0.0.0 --proxy-config proxy.conf.json",

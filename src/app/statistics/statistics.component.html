@@ -17,12 +17,12 @@
     <article class="chart-card stats-overview">
       <h2>Température, humidité et consommation de granulés</h2>
       <div class="overlay-legend" aria-label="Légende du graphique">
-        <span class="legend-temp">Temp. intérieure corrigée</span>
+        <span class="legend-temp">Temp. intérieure</span>
         <span class="legend-temp dashed">Temp. extérieure</span>
         <span class="legend-humi">Humidité intérieure</span>
         <span class="legend-humi dashed">Humidité extérieure</span>
         <span class="legend-consumption">Granulés (kg / 15 min)</span>
-        <span class="legend-setpoint" *ngIf="scheduledSetpointPaths.length">Consigne programmée (indicative)</span>
+        <span class="legend-setpoint" *ngIf="scheduledSetpointPaths.length">Consigne corrigée (seuil en °C)</span>
       </div>
       <svg class="overlay-graph" viewBox="0 0 1240 430" preserveAspectRatio="none"
            role="img" aria-label="Historique des dernières 24 heures : températures, humidité et granulés consommés">
