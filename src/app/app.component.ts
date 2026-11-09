@@ -3,6 +3,8 @@ import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { PelletService } from './services/pellets.service';
 import { interval } from 'rxjs';
 
+import { version as packageVersion } from '../../package.json';
+
 @Component({
   standalone: false,
   selector: 'app-root',
@@ -10,6 +12,7 @@ import { interval } from 'rxjs';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit, OnDestroy {
+  readonly appVersion = packageVersion;
   title = 'pellet';
   readonly frontendVersion = FRONTEND_VERSION;
   today: number = Date.now();
