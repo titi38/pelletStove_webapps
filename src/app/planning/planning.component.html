@@ -32,26 +32,38 @@
         <div *ngIf="showCopy" class="copy-panel"><label *ngFor="let d of weekdays;let i=index"><input type="checkbox" [(ngModel)]="copyTargets[i]" [disabled]="i===selectedDay" />{{d}}</label><button class="primary" (click)="copyPeriods()">Copier</button></div>
       </section>
       <aside class="presence-card settings">
-        <h2>Température de consigne</h2>
+        
+      <section class="pc-v564-group pc-v564-comfort">
+      <h2>Température de consigne</h2>
         <label>Consigne <span><span class="comfort-stepper-v5310" role="group" aria-label="Réglage de la température de consigne">
           <button type="button" class="comfort-step-btn" (click)="adjustComfortStep(-1)" [disabled]="config.comfort <= 10" aria-label="Diminuer de 0,5 °C">−</button>
           <input type="number" [(ngModel)]="config.comfort" (ngModelChange)="onComfortChange()" min="10" max="25" step="0.5" />
           <button type="button" class="comfort-step-btn" (click)="adjustComfortStep(1)" [disabled]="config.comfort >= 25" aria-label="Augmenter de 0,5 °C">+</button>
         </span> °C</span></label>
-        <section class="v55-settings-section">
-          <div class="v55-heading"><h2>Démarrage anticipé</h2><label><input type="checkbox" [(ngModel)]="config.anticipation.enabled" (ngModelChange)="onSettingsChange()"> Activer</label></div>
+        
+      </section>
+      
+      <section class="pc-v564-group pc-v564-anticipation">
+      <section class="v55-settings-section">
+          <div class="v55-heading"><h2 class="pc-v564-anticipation">Démarrage anticipé</h2><label><input type="checkbox" [(ngModel)]="config.anticipation.enabled" (ngModelChange)="onSettingsChange()"> Activer</label></div>
           <div class="v55-setting-row" *ngIf="config.anticipation.enabled">
             <label>Sous <span class="v55-step"><button type="button" (click)="changeSetting('anticipationBelow',-1)">−</button><strong>{{config.anticipation.below | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('anticipationBelow',1)">+</button></span></label>
             <label>Avant la période <select [(ngModel)]="config.anticipation.minutes" (ngModelChange)="onSettingsChange()"><option [ngValue]="15">15 min</option><option [ngValue]="30">30 min</option><option [ngValue]="45">45 min</option><option [ngValue]="60">60 min</option><option [ngValue]="90">90 min</option><option [ngValue]="120">120 min</option></select></label>
           </div>
         </section>
-        <section class="v55-settings-section">
-          <div class="v55-heading"><h2>Protection grand froid</h2><label><input type="checkbox" [(ngModel)]="config.automaticFrost.enabled" (ngModelChange)="onSettingsChange()"> Activer</label></div>
+        
+      </section>
+      
+      <section class="pc-v564-group pc-v564-frost">
+      <section class="v55-settings-section">
+          <div class="v55-heading"><h2 class="pc-v564-frost">Protection grand froid</h2><label><input type="checkbox" [(ngModel)]="config.automaticFrost.enabled" (ngModelChange)="onSettingsChange()"> Activer</label></div>
           <div class="v55-setting-row" *ngIf="config.automaticFrost.enabled">
             <label>Démarrer sous <span class="v55-step"><button type="button" (click)="changeSetting('autoFrostStart',-1)">−</button><strong>{{config.automaticFrost.startBelow | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('autoFrostStart',1)">+</button></span></label>
             <label>Arrêter à <span class="v55-step"><button type="button" (click)="changeSetting('autoFrostStop',-1)">−</button><strong>{{config.automaticFrost.stopAt | number:'1.1-1'}} °C</strong><button type="button" (click)="changeSetting('autoFrostStop',1)">+</button></span></label>
           </div>
         </section>
+      
+      </section>
       </aside>
     </div>
     <section class="presence-card v55-single-card v55-mode-panel" *ngIf="selectedMode==='presence'">

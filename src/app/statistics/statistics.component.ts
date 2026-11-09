@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription, timer } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { PelletService } from '../services/pellets.service';
+import { forkJoin, of, Subscription, timer } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { PelletService, PresenceSchedule } from '../services/pellets.service';
 
 type Measurement = number | null;
 interface Slot {
@@ -33,6 +33,9 @@ export class StatisticsComponent implements OnInit, OnDestroy {
   atmosphereData: any[][] = [];
   consumptionData: any[][] = [];
   private subscription?: Subscription;
+  private schedule: PresenceSchedule | null = null;
+  // Indicative schedule line: historical mode changes are not recorded by stats.json.
+  scheduledSetpointPaths: string[] = [];
 
   // Both charts MUST use the same chartArea and fixed 24-hour domain.
   // Google Charts does not support chartArea.right or chartArea.bottom.
@@ -95,7 +98,10 @@ export class StatisticsComponent implements OnInit, OnDestroy {
     const start = axis?.min instanceof Date ? axis.min.getTime() : end - 24*3600000;
     const x = (t: number) => this.plotLeft + (t - start) / Math.max(1, end-start) * plotW;
     const finite = (v: number|null|undefined): v is number => typeof v === 'number' && Number.isFinite(v);
+    const scheduleComfort = this.schedule && Number.isFinite(this.schedule.comfort)
+      ? this.schedule.comfort : null;
     const tempValues = atmos.flatMap(r => [r[1],r[3]]).filter(finite);
+    if (scheduleComfort !== null) tempValues.push(scheduleComfort);
     let tMin = tempValues.length ? Math.floor((Math.min(...tempValues)-1)/5)*5 : 0;
     let tMax = tempValues.length ? Math.ceil((Math.max(...tempValues)+1)/5)*5 : 30;
     if (tMax <= tMin) tMax = tMin + 5;
@@ -123,6 +129,47 @@ export class StatisticsComponent implements OnInit, OnDestroy {
       timeTicks.push({x:x(t),label:String(d.getHours()).padStart(2,'0')+':00'});
     }
     this.overlayTimes=timeTicks;
+    // Draw the current weekly programmed setpoint only while a scheduled period is active.
+    // These are reference periods, NOT historical proof of actual Automatic mode operation.
+    this.scheduledSetpointPaths = [];
+    if (this.schedule && scheduleComfort !== null &&
+        Array.isArray(this.schedule.days) && this.schedule.days.length === 7) {
+      const minute = (value: unknown): number | null => {
+        if (typeof value !== 'string' || !/^\d{2}:\d{2}$/.test(value)) return null;
+        const [h,m] = value.split(':').map(Number);
+        return h >= 0 && h <= 23 && m >= 0 && m <= 59 ? h*60+m : null;
+      };
+      const first = new Date(start);
+      first.setHours(0,0,0,0);
+      first.setDate(first.getDate()-1); // A period may span midnight.
+      const last = new Date(end);
+      last.setHours(0,0,0,0);
+      const segments: {from:number;to:number}[] = [];
+      for (let date = new Date(first); date.getTime() <= last.getTime(); date.setDate(date.getDate()+1)) {
+        const weekday = (date.getDay()+6)%7;
+        const periods = this.schedule.days[weekday];
+        if (!Array.isArray(periods)) continue;
+        for (const period of periods) {
+          const begin = minute(period.start), finish = minute(period.end);
+          if (begin === null || finish === null || begin === finish) continue;
+          const from = date.getTime()+begin*60000;
+          const to = date.getTime()+(finish <= begin ? finish+1440 : finish)*60000;
+          const clippedFrom = Math.max(start,from), clippedTo = Math.min(end,to);
+          if (clippedTo > clippedFrom) segments.push({from:clippedFrom,to:clippedTo});
+        }
+      }
+      segments.sort((a,b)=>a.from-b.from);
+      // Merge adjacent and overlapping periods: no artificial gaps between them.
+      const merged: {from:number;to:number}[] = [];
+      for (const segment of segments) {
+        const prev = merged[merged.length-1];
+        if (prev && segment.from <= prev.to) prev.to = Math.max(prev.to,segment.to);
+        else merged.push({...segment});
+      }
+      const y = yTemp(scheduleComfort).toFixed(2);
+      this.scheduledSetpointPaths = merged.map(s=>
+        `M${x(s.from).toFixed(2)},${y} L${x(s.to).toFixed(2)},${y}`);
+    }
     const width=Math.min(9,plotW/96*0.82);
     this.overlayBars=cons.filter(r=>finite(r[1])&&r[1]>=0).map(r=>{
       const cx=x(r[0].getTime()+450000);
@@ -157,8 +204,12 @@ export class StatisticsComponent implements OnInit, OnDestroy {
   constructor(private pellets: PelletService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.subscription = timer(0, 60000).pipe(switchMap(() => this.pellets.refreshStats())).subscribe({
-      next: payload => {
+    this.subscription = timer(0, 60000).pipe(switchMap(() => forkJoin({
+      payload: this.pellets.refreshStats(),
+      schedule: this.pellets.refreshSchedule().pipe(catchError(() => of(null)))
+    }))).subscribe({
+      next: ({payload, schedule}) => {
+        this.schedule = schedule;
         if (!payload || !Array.isArray(payload.stats) ||
           !Number.isInteger(payload.hour) || payload.hour < 0 || payload.hour > 23 ||
           !Number.isInteger(payload.quarter) || payload.quarter < 0 || payload.quarter > 3) {

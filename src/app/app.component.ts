@@ -1,3 +1,4 @@
+import { FRONTEND_VERSION } from './version';
 import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
 import { PelletService } from './services/pellets.service';
 import { interval } from 'rxjs';
@@ -10,6 +11,7 @@ import { interval } from 'rxjs';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'pellet';
+  readonly frontendVersion = FRONTEND_VERSION;
   today: number = Date.now();
   dateSubscription: any;
 

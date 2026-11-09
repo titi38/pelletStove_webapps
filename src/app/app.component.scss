@@ -64,3 +64,6 @@
     min-height: 40px;
   }
 }
+
+/* Version de l’interface : indication discrete sans changer la hauteur du bandeau */
+.app-version { font-size: 0.7em; opacity: .65; margin-left: .35rem; white-space: nowrap; }

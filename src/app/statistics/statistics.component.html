@@ -22,6 +22,7 @@
         <span class="legend-humi">Humidité intérieure</span>
         <span class="legend-humi dashed">Humidité extérieure</span>
         <span class="legend-consumption">Granulés (kg / 15 min)</span>
+        <span class="legend-setpoint" *ngIf="scheduledSetpointPaths.length">Consigne programmée (indicative)</span>
       </div>
       <svg class="overlay-graph" viewBox="0 0 1240 430" preserveAspectRatio="none"
            role="img" aria-label="Historique des dernières 24 heures : températures, humidité et granulés consommés">
@@ -39,6 +40,9 @@
                 [attr.width]="b.w" [attr.height]="b.h">
             <title>{{b.tooltip}}</title>
           </rect>
+        </g>
+        <g class="overlay-setpoint" *ngIf="scheduledSetpointPaths.length">
+          <path *ngFor="let path of scheduledSetpointPaths" [attr.d]="path"/>
         </g>
         <g *ngFor="let line of overlayLines">
           <path *ngFor="let path of line.paths" [attr.d]="path" fill="none"
