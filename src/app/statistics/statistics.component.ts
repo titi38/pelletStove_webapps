@@ -180,7 +180,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
           (r[1] as number).toFixed(3)+' kg sur le quart d’heure'};
     });
     const series:[string,string,number,(v:number)=>number,string][]=[
-      ['Temp. intérieure','#e97822',1,yTemp,''],
+      ['Temp. intérieure corrigée','#e97822',1,yTemp,''],
       ['Temp. extérieure','#e97822',3,yTemp,'7 5'],
       ['Humidité intérieure','#1875cf',2,yHumidity,''],
       ['Humidité extérieure','#1875cf',4,yHumidity,'7 5']
@@ -247,7 +247,13 @@ export class StatisticsComponent implements OnInit, OnDestroy {
             consumption: this.value(values, 5)
           };
         });
-        this.atmosphereData = rows.map(p => [p.date, p.indoorTemp, p.indoorHumidity, p.outdoorTemp, p.outdoorHumidity]);
+        // Même température corrigée que dans AutoMode.cc : temp - humi / 75.
+        // La consigne est déjà exprimée sur cette échelle : ne pas la corriger.
+        const correctedIndoorTemp = (p: Slot): Measurement =>
+          p.indoorTemp !== null && p.indoorHumidity !== null
+            ? p.indoorTemp - p.indoorHumidity / 75.0
+            : null;
+        this.atmosphereData = rows.map(p => [p.date, correctedIndoorTemp(p), p.indoorHumidity, p.outdoorTemp, p.outdoorHumidity]);
         this.consumptionData = rows.map(p => [p.date, p.consumption]);
         // Include the current partial quarter, when backend exposes it.
         // The unfinished slot contains the mass accumulated so far (kg).
@@ -259,7 +265,7 @@ export class StatisticsComponent implements OnInit, OnDestroy {
         }
         this.redrawOverlay();
         this.count = rows.length;
-        this.avgIndoorTemp = this.mean(rows.map(p => p.indoorTemp));
+        this.avgIndoorTemp = this.mean(rows.map(p => correctedIndoorTemp(p)));
         this.avgIndoorHumidity = this.mean(rows.map(p => p.indoorHumidity));
         this.avgOutdoorTemp = this.mean(rows.map(p => p.outdoorTemp));
         this.avgOutdoorHumidity = this.mean(rows.map(p => p.outdoorHumidity));

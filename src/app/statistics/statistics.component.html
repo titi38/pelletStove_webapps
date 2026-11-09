@@ -7,7 +7,7 @@
   <div class="notice" *ngIf="loading">Chargement des statistiques…</div>
   <ng-container *ngIf="!loading && count">
     <div class="kpis">
-      <div class="kpi"><span>Temp. int. moyenne</span><strong>{{avgIndoorTemp === null ? '—' : (avgIndoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
+      <div class="kpi"><span>Temp. int. corrigée moy.</span><strong>{{avgIndoorTemp === null ? '—' : (avgIndoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
       <div class="kpi"><span>Humidité int. moyenne</span><strong>{{avgIndoorHumidity === null ? '—' : (avgIndoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
       <div class="kpi"><span>Temp. ext. moyenne</span><strong>{{avgOutdoorTemp === null ? '—' : (avgOutdoorTemp | number:'1.1-1')}}<small> °C</small></strong></div>
       <div class="kpi"><span>Humidité ext. moyenne</span><strong>{{avgOutdoorHumidity === null ? '—' : (avgOutdoorHumidity | number:'1.0-1')}}<small> %</small></strong></div>
@@ -17,7 +17,7 @@
     <article class="chart-card stats-overview">
       <h2>Température, humidité et consommation de granulés</h2>
       <div class="overlay-legend" aria-label="Légende du graphique">
-        <span class="legend-temp">Temp. intérieure</span>
+        <span class="legend-temp">Temp. intérieure corrigée</span>
         <span class="legend-temp dashed">Temp. extérieure</span>
         <span class="legend-humi">Humidité intérieure</span>
         <span class="legend-humi dashed">Humidité extérieure</span>
